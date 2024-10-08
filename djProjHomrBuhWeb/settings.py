@@ -36,6 +36,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'homebuhweb',
+    'bootstrap4',
 ]
 
 MIDDLEWARE = [

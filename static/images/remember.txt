@@ -1,0 +1,2 @@
+{% load static %}
+<img src="{% static 'images/icon1.png' %}" alt="Icon 1">

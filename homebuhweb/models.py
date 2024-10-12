@@ -1,5 +1,9 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
+from django import forms
+from django.contrib.auth.forms import UserCreationForm
+from django.contrib.auth.models import User
+
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
@@ -27,6 +31,7 @@ class MyUserManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
+
 class MyUser(AbstractBaseUser):
     email = models.EmailField(verbose_name='email address', max_length=255, unique=True)
     username = models.CharField(max_length=30, unique=True)
@@ -51,6 +56,7 @@ class MyUser(AbstractBaseUser):
     def is_staff(self):
         return self.is_admin
 
+
 class UserProfile(models.Model):
     class Meta:
         db_table = 'user_profile_pictures'
@@ -58,3 +64,14 @@ class UserProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='avatars/')
     financial_report = models.FileField(upload_to='financial_reports/', null=True, blank=True)
+
+
+class Profile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    can_create_data = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'{self.user.username} Profile'
+
+
+

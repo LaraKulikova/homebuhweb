@@ -24,14 +24,156 @@
 
     <!-- Custom styles for this template -->
     <link href="{% static 'css/homepage_style.css' %}" rel="stylesheet">
-
     <style>
-        .main-custom {
-            background-image: url('{% static 'images/knigi.jpg' %}');
-            background-size: cover;
-            background-position: center;
-            background-repeat: no-repeat;
-            background-attachment: fixed;
+        :root {
+            --primary-color: #583E26;
+            --secondary-color: #F3EB6B;
+            --hover-color: #f55f5f;
+            --secondary-hover-color: #C2B804;
+            --background-color: #A78B71;
+            --footer-color: #583E26;
+            --footer-text-color: #583E26;
+            --footer-link-color: #C2B804;
+            --footer-p-color: #F7C815;
+            --modal-header-color: #583E26;
+            --modal-header-text-color: #F7C815;
+            --modal-footer-color: #583E26;
+            --modal-footer-text-color: #F7C815;
+            --button-primary-bg: #583E26;
+            --button-secondary-bg: #A78B71;
+            --button-text-color: #ffffff;
+        }
+
+        body {
+            background-color: var(--background-color);
+        }
+
+        .navbar-custom {
+            background-color: var(--primary-color);
+            color: var(--secondary-color);
+        }
+
+        .navbar-custom .navbar-toggler-icon {
+            background-color: var(--secondary-color);
+        }
+
+        .section-background {
+            position: relative;
+            display: inline-block;
+            padding: 20px;
+            border: 1px solid var(--footer-color);
+            border-radius: 10px;
+            background-color: var(--background-color);
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .section-background::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--footer-color);
+            opacity: 0.2;
+            border-radius: 10px;
+            z-index: -1;
+        }
+
+        .custom-style {
+            color: yellow;
+            font-weight: bold;
+            font-size: 24px;
+        }
+
+        .btn-custom {
+            background-color: var(--button-primary-bg);
+            color: var(--button-text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-custom:hover {
+            background-color: hsl(30, 50%, 25%);
+        }
+
+        .btn-secondary-custom {
+            background-color: var(--button-secondary-bg);
+            color: var(--button-text-color);
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .btn-secondary-custom:hover {
+            background-color: hsl(30, 30%, 55%);
+        }
+
+        .modal-content {
+            background-color: var(--background-color);
+            color: var(--primary-color);
+        }
+
+        .footer-custom {
+            background-color: var(--footer-color);
+            color: var(--footer-text-color);
+        }
+
+        .footer-custom a {
+            color: var(--footer-link-color);
+        }
+
+        .footer-custom p {
+            color: var(--footer-p-color);
+        }
+
+        .form-control {
+            background-color: var(--background-color);
+            color: var(--primary-color);
+        }
+
+        .form-control::placeholder {
+            color: var(--primary-color);
+        }
+
+        .modal-header {
+            background-color: var(--modal-header-color);
+            color: var(--modal-header-text-color);
+        }
+
+        .modal-footer {
+            background-color: var(--modal-footer-color);
+            color: var(--modal-footer-text-color);
+        }
+
+        .btn-close {
+            color: var(--modal-header-text-color);
+        }
+
+        .btn-inverted {
+            background-color: white;
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+        }
+
+        .btn-inverted:hover {
+            background-color: var(--hover-color);
+            color: black;
+        }
+
+        .lead-text {
+            color: var(--secondary-color) !important;
+            font-family: 'Duality Regular', sans-serif;
+            font-size: 20px;
+        }
+
+        .form-text {
+            color: #F3EB6B;
         }
     </style>
 </head>
@@ -41,35 +183,37 @@
         <div class="container">
             <a href="#" class="navbar-brand d-flex align-items-center">
                 <img src="{% static 'images/apple-touch-icon.png' %}" width="40" height="40" alt="favicon" class="me-2">
-                <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ ПОЛЬЗОВАТЕЛЯ</strong>
+                <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
+                    ПОЛЬЗОВАТЕЛЯ</strong>
             </a>
         </div>
     </div>
 </header>
 
-<main class="main-custom">
-    <section class="py-5 text-center container">
-        <div class="row py-lg-5">
-            <div class="col-lg-6 col-md-8 mx-auto">
-                <div class="section-background">
-                    <h1 class="custom-style">Здесь будет инфа для юзера</h1>
-                    <p class="lead text-muted lead-text">
-                        Приложение разработано для того, чтобы управлять личными финансами было не просто, а очень
-                        просто.
-                    </p>
-                    <p>Для того, чтобы начать использовать приложение нажмите кнопку "Регистрация". Если у вас уже есть
-                        аккаунт, нажмите кнопку "Вход".</p>
-                    <p>
-                        <button class="btn btn-custom my-2" data-bs-toggle="modal" data-bs-target="#loginModal">Вход
-                        </button>
-                        <button class="btn btn-secondary-custom my-2" data-bs-toggle="modal"
-                                data-bs-target="#registrationModal">Регистрация
-                        </button>
-                    </p>
-                </div>
+<main class="container py-5">
+    <div class="row">
+        <!-- Первый блок -->
+        <div class="col-md-8">
+            <div class="mb-4">
+                <h2>Действия</h2>
+                <button class="btn btn-custom my-2">Добавить доход</button>
+                <button class="btn btn-custom my-2">Добавить расход</button>
+                <button class="btn btn-custom my-2">Добавить плановый расход</button>
+                <button class="btn btn-custom my-2">Добавить кредит/рассрочку</button>
+                <button class="btn btn-custom my-2">Просмотреть графики</button>
+            </div>
+            <!-- Второй блок -->
+            <div>
+                <h2>Информация</h2>
+                <p>Здесь будет инфа для юзера</p>
             </div>
         </div>
-    </section>
+        <!-- Третий блок -->
+        <div class="col-md-4">
+            <h2>Курсы валют НБ БР на Сегодня</h2>
+            <p>Здесь будут отображаться курсы валют.</p>
+        </div>
+    </div>
 </main>
 
 <footer class="footer-custom text-muted py-5">

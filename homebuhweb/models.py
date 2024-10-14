@@ -1,16 +1,14 @@
-from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
-from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
+from django.db import models
 
 
 class MyUserManager(BaseUserManager):
     def create_user(self, email, username, password=None):
         if not email:
-            raise ValueError('Users must have an email address')
+            raise ValueError('Обязательное поле. Введите адрес электронной почты')
         if not username:
-            raise ValueError('Users must have a username')
+            raise ValueError('Обязательное поле. Введите имя пользователя')
 
         user = self.model(
             email=self.normalize_email(email),
@@ -57,21 +55,13 @@ class MyUser(AbstractBaseUser):
         return self.is_admin
 
 
-class UserProfile(models.Model):
-    class Meta:
-        db_table = 'user_profile_pictures'
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    avatar = models.ImageField(upload_to='avatars/')
-    financial_report = models.FileField(upload_to='financial_reports/', null=True, blank=True)
-
-
-# class Profile(models.Model):
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     can_create_data = models.BooleanField(default=False)
+# class UserProfile(models.Model):
+#     class Meta:
+#         db_table = 'user_profile_pictures'
 #
-#     def __str__(self):
-#         return f'{self.user.username} Profile'
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     avatar = models.ImageField(upload_to='avatars/')
+#     financial_report = models.FileField(upload_to='financial_reports/', null=True, blank=True)
 
 
 class Profile(models.Model):

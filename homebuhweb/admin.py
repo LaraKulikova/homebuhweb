@@ -1,9 +1,10 @@
 from django.contrib import admin
-from .models import UserProfile
+from .models import Profile
 
 
-class UserProfileAdmin(admin.ModelAdmin):
-    list_display = ('user', 'avatar', 'financial_report')
+class ProfileAdmin(admin.ModelAdmin):
+    list_display = ('user', 'avatar', 'phone', 'address')
 
 
-admin.site.register(UserProfile, UserProfileAdmin)
+admin.site.register(Profile, ProfileAdmin)
+

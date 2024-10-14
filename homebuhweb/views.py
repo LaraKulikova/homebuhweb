@@ -2,7 +2,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import render, redirect
-
+from django.contrib.auth.models import Group
 from .forms import UserForm, ProfileForm
 
 
@@ -15,6 +15,8 @@ def register(request):
         form = UserCreationForm(request.POST)
         if form.is_valid():
             user = form.save()
+            group = Group.objects.get(name='Users')
+            user.groups.add(group)
             login(request, user)
             return redirect('user_cabinet')
     else:
@@ -39,6 +41,7 @@ def user_cabinet(request):
     return render(request, 'homebuhweb/login/usercabinet.html')
 
 
+@login_required
 def user_prof(request):
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=request.user)
@@ -58,35 +61,7 @@ def user_prof(request):
     })
 
 
-@login_required
-def user_prof(request):
-    if request.method == 'POST':
-        user_form = UserForm(request.POST, instance=request.user)
-        profile_form = ProfileForm(request.POST, request.FILES, instance=request.user.profile)
-
-        if user_form.is_valid() and profile_form.is_valid():
-            user_form.save()
-            profile_form.save()
-            return redirect('user_prof')
-        else:
-            return render(request, 'homebuhweb/login/user_prof.html', {
-                'user_form': user_form,
-                'profile_form': profile_form
-            })
-    else:
-        user_form = UserForm(instance=request.user)
-        profile_form = ProfileForm(instance=request.user.profile)
-        return render(request, 'homebuhweb/login/user_prof.html', {
-            'user_form': user_form,
-            'profile_form': profile_form
-        })
-
-
-# def logout_view(request):
-#     logout(request)
-#     return redirect('login')
 def delete_avatar(request):
     user = request.user
-    user.profile.avatar.delete()  # Удаляем аватар
-    return redirect('user_prof')  # Перенаправляем обратно на страницу профиля
-
+    user.profile.avatar.delete()
+    return redirect('user_prof')

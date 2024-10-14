@@ -17,6 +17,14 @@
     --button-text-color: #ffffff;
 }
 
+html, body {
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+}
+
 .navbar-custom {
     background-color: var(--primary-color);
     color: var(--secondary-color);
@@ -26,18 +34,17 @@
     background-color: var(--secondary-color);
 }
 
-
+.main-custom {
+    background-color: var(--background-color);
+}
 
 .section-background {
     position: relative;
     display: inline-block;
     padding: 20px;
-    border: 1px solid var(--footer-color);
+    border: 2px solid var(--footer-color);
     border-radius: 10px;
     background-color: var(--background-color);
-    max-width: 500px;
-    width: 100%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
 
 .section-background::before {

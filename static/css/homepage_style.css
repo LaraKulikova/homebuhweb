@@ -17,6 +17,15 @@
     --button-text-color: #ffffff;
 }
 
+html, body {
+    background-color: var(--background-color);
+    margin: 0;
+    padding: 0;
+    height: 100%;
+    width: 100%;
+    overflow-x: hidden; /* Добавлено для устранения горизонтальной прокрутки */
+}
+
 .navbar-custom {
     background-color: var(--primary-color);
     color: var(--secondary-color);
@@ -140,4 +149,31 @@
     color: var(--secondary-color) !important;
     font-family: 'Duality Regular', sans-serif;
     font-size: 20px;
+}
+
+.form-text {
+    color: #F3EB6B;
+}
+.avatar-container {
+text-align: center;
+margin-bottom: 20px;
+}
+
+.avatar {
+width: 150px;
+height: 150px;
+border-radius: 50%;
+object-fit: cover;
+margin-bottom: 10px;
+}
+
+.profile-container {
+display: flex;
+flex-direction: column;
+align-items: center;
+}
+
+.personal-info {
+width: 100%;
+max-width: 500px;
 }

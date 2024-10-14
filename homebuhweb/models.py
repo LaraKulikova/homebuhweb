@@ -66,12 +66,19 @@ class UserProfile(models.Model):
     financial_report = models.FileField(upload_to='financial_reports/', null=True, blank=True)
 
 
+# class Profile(models.Model):
+#     user = models.OneToOneField(User, on_delete=models.CASCADE)
+#     can_create_data = models.BooleanField(default=False)
+#
+#     def __str__(self):
+#         return f'{self.user.username} Profile'
+
+
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    can_create_data = models.BooleanField(default=False)
+    avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
+    phone = models.CharField(max_length=15, blank=True)
+    address = models.CharField(max_length=255, blank=True)
 
     def __str__(self):
-        return f'{self.user.username} Profile'
-
-
-
+        return self.user.username

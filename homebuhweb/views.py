@@ -3,6 +3,8 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.shortcuts import render, redirect
 from django.contrib.auth.models import Group
+from django.template.context_processors import static
+
 from .forms import UserForm, ProfileForm
 
 
@@ -36,9 +38,20 @@ def login_view(request):
     return redirect('homepage')
 
 
+# @login_required
+# def user_cabinet(request):
+#     return render(request, 'homebuhweb/login/usercabinet.html')
 @login_required
 def user_cabinet(request):
-    return render(request, 'homebuhweb/login/usercabinet.html')
+    profile = request.user.profile
+    avatar_url = profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png')
+    username = profile.user.username if profile.user.username else profile.user.email
+
+    context = {
+        'avatar_url': avatar_url,
+        'username': username,
+    }
+    return render(request, 'homebuhweb/login/usercabinet.html', context)
 
 
 @login_required

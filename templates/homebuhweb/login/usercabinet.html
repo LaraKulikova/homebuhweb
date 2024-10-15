@@ -10,7 +10,7 @@
     <title>ДОМАШНЯЯ БУХГАЛТЕРИЯ</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
-    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+    <link rel="icon" href="{{ avatar_url }}" type="image/x-icon">
     <!-- Preload CSS -->
     <link rel="preload" href="{% static 'css/homepage_style.css' %}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -30,16 +30,19 @@
     <div class="navbar navbar-custom shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="#" class="navbar-brand d-flex align-items-center">
-                <img src="{% static 'images/apple-touch-icon.png' %}" width="40" height="40" alt="favicon" class="me-2">
+                <img src="{{ avatar_url }}" width="40" height="40" alt="favicon" class="me-2">
                 <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
                     ПОЛЬЗОВАТЕЛЯ</strong>
             </a>
             <div>
+                <span id="current-date"
+                      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);"></span>
                 <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
                 </form>
+                <span style="margin-left: 20px; font-size: 16px; color: var(--secondary-color);">{{ username }}</span>
             </div>
         </div>
     </div>

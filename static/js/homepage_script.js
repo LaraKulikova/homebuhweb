@@ -132,3 +132,13 @@ document.addEventListener('DOMContentLoaded', function () {
         })
         .catch(error => console.error('Ошибка при загрузке данных:', error));
 });
+
+
+document.addEventListener('DOMContentLoaded', function() {
+const dateElement = document.getElementById('current-date');
+dateElement.textContent = new Date().toLocaleDateString('ru-RU', {
+day: '2-digit',
+month: 'long',
+year: 'numeric'
+});
+});

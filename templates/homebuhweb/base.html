@@ -2,59 +2,76 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.84.0">
-    <title>{% block title %}ДОМАШНЯЯ БУХГАЛТЕРИЯ{% endblock %}</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="description" content="">
+<meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
+<meta name="generator" content="Hugo 0.84.0">
+<title>{% block title %}ДОМАШНЯЯ БУХГАЛТЕРИЯ{% endblock %}</title>
 
-    <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
-    <link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
-    <!-- Preload CSS -->
-    <link rel="preload" href="{% static 'css/homepage_style.css' %}" as="style"
-          onload="this.onload=null;this.rel='stylesheet'">
-    <noscript>
-        <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
-    </noscript>
+<link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
+<link rel="icon" href="{% static 'images/favicon.ico' %}" type="image/x-icon">
+<!-- Preload CSS -->
+<link rel="preload" href="{% static 'css/homepage_style.css' %}" as="style"
+onload="this.onload=null;this.rel='stylesheet'">
+<noscript>
+<link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
+</noscript>
 
-    <!-- Bootstrap core CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
-          integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+<!-- Bootstrap core CSS -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
+integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
 
-    <!-- Custom styles for this template -->
-    <link href="{% static 'css/homepage_style.css' %}" rel="stylesheet">
+<!-- Custom styles for this template -->
+<link href="{% static 'css/homepage_style.css' %}" rel="stylesheet">
 </head>
 <body style="background-color: #A78B71; margin: 0; padding: 0; height: 100%; width: 100%;">
 <header>
-    <div class="navbar navbar-custom shadow-sm">
-        <div class="container">
-            <a href="#" class="navbar-brand d-flex align-items-center">
-                <img src="{% static 'images/apple-touch-icon.png' %}" width="40" height="40" alt="favicon" class="me-2">
-                <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">ДОМАШНЯЯ
-                    БУХГАЛТЕРИЯ</strong>
-            </a>
-        </div>
-    </div>
+<div class="navbar navbar-custom shadow-sm">
+<div class="container d-flex justify-content-between align-items-center">
+<a href="#" class="navbar-brand d-flex align-items-center">
+<img src="{% static 'images/apple-touch-icon.png' %}" width="40" height="40" alt="favicon" class="me-2">
+<strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
+ПОЛЬЗОВАТЕЛЯ</strong>
+</a>
+<div>
+{% block header_buttons %}
+<a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
+<form method="post" action="{% url 'logout' %}" style="display: inline;">
+{% csrf_token %}
+<button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
+</form>
+{% endblock %}
+</div>
+</div>
+</div>
 </header>
 
 <main class="container py-5 main-custom">
-    {% block content %}
-    {% endblock %}
+{% block content %}
+{% endblock %}
 </main>
 
 <footer class="footer-custom text-muted py-5">
-    <div class="container">
-        <p class="float-end mb-1">
-            <a href="#">Back to top</a>
-        </p>
-        <p class="mb-1">Домашняя бухгалтерия, 2023</p>
-    </div>
+<div class="container">
+<p class="float-end mb-1">
+<a href="#" id="back-to-top">Наверх</a>
+</p>
+<p class="mb-1">Домашняя бухгалтерия, 2023</p>
+</div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
-        integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
-        crossorigin="anonymous"></script>
+integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+crossorigin="anonymous"></script>
 <script src="{% static 'js/homepage_script.js' %}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+document.getElementById('back-to-top').addEventListener('click', function(event) {
+event.preventDefault();
+window.scrollTo({ top: 0, behavior: 'smooth' });
+});
+});
+</script>
 </body>
 </html>

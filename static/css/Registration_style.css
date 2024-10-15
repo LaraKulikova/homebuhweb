@@ -153,3 +153,11 @@ html, body {
 .form-text {
     color: #F3EB6B;
 }
+.custom-table {
+    background-color: #A78B71;
+    color: #806d55; /* Цвет текста для контраста */
+}
+
+.custom-table th, .custom-table td {
+    border: 1px solid #c4a584; /* Цвет границ */
+}

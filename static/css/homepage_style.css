@@ -24,6 +24,7 @@ html, body {
     height: 100%;
     width: 100%;
     overflow-x: hidden; /* Добавлено для устранения горизонтальной прокрутки */
+    scroll-behavior: smooth;
 }
 
 .navbar-custom {
@@ -154,26 +155,28 @@ html, body {
 .form-text {
     color: #F3EB6B;
 }
+
 .avatar-container {
-text-align: center;
-margin-bottom: 20px;
+    text-align: center;
+    margin-bottom: 20px;
 }
 
 .avatar {
-width: 150px;
-height: 150px;
-border-radius: 50%;
-object-fit: cover;
-margin-bottom: 10px;
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    margin-bottom: 10px;
 }
 
 .profile-container {
-display: flex;
-flex-direction: column;
-align-items: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .personal-info {
-width: 100%;
-max-width: 500px;
+    width: 100%;
+    max-width: 500px;
 }
+

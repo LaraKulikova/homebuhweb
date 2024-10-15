@@ -36,7 +36,10 @@
             </a>
             <div>
                 <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
-                <a href="#" class="btn btn-custom">Выход из личного кабинета</a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
+                </form>
             </div>
         </div>
     </div>
@@ -60,18 +63,29 @@
                 <p>Здесь будет инфа для юзера</p>
             </div>
         </div>
-        <!-- Третий блок -->
+        <!-- Третий блок подгрузка данных с сайта нацбанка-->
         <div class="col-md-4">
             <h2>Курсы валют НБ БР на Сегодня</h2>
-            <p>Здесь будут отображаться курсы валют.</p>
+            <table id="currency-rates" class="table table-striped">
+                <thead>
+                <tr>
+                    <th style="background-color: #A78B71; color: #fff;">Валюта</th>
+                    <th style="background-color: #A78B71; color: #fff;">Курс</th>
+                </tr>
+                </thead>
+                <tbody>
+                <!-- Данные будут загружены автоматически -->
+                </tbody>
+            </table>
         </div>
+
     </div>
 </main>
 
 <footer class="footer-custom text-muted py-5">
     <div class="container">
         <p class="float-end mb-1">
-            <a href="#">Back to top</a>
+            <a href="#">Наверх</a>
         </p>
         <p class="mb-1">Домашняя бухгалтерия, 2023</p>
     </div>

@@ -10,7 +10,9 @@
     <title>ДОМАШНЯЯ БУХГАЛТЕРИЯ</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
-    <link rel="icon" href="{{ avatar_url }}" type="image/x-icon">
+    <link rel="icon" href="
+            {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
+          type="image/x-icon">
     <!-- Preload CSS -->
     <link rel="preload" href="{% static 'css/homepage_style.css' %}" as="style"
           onload="this.onload=null;this.rel='stylesheet'">
@@ -30,9 +32,12 @@
     <div class="navbar navbar-custom shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="#" class="navbar-brand d-flex align-items-center">
-                <img src="{{ avatar_url }}" width="40" height="40" alt="favicon" class="me-2">
+                <img src="
+                        {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
+                     width="40" height="40" alt="favicon" class="me-2">
                 <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
-                    ПОЛЬЗОВАТЕЛЯ</strong>  <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ username }}</span>
+                    ПОЛЬЗОВАТЕЛЯ</strong>
+                <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
             </a>
             <div>
                 <span id="current-date"
@@ -42,7 +47,6 @@
                     {% csrf_token %}
                     <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
                 </form>
-              
             </div>
         </div>
     </div>
@@ -54,7 +58,7 @@
         <div class="col-md-8">
             <div class="mb-4">
                 <h2>Действия</h2>
-                <button class="btn btn-custom my-2">Добавить доход</button>
+                <a href="{% url 'add_income' %}" class="btn btn-custom my-2">Добавить доход</a>
                 <button class="btn btn-custom my-2">Добавить расход</button>
                 <button class="btn btn-custom my-2">Добавить плановый расход</button>
                 <button class="btn btn-custom my-2">Добавить кредит/рассрочку</button>
@@ -63,7 +67,17 @@
             <!-- Второй блок -->
             <div>
                 <h2>Информация</h2>
-                <p>Здесь будет краткий отчет на основании данных введенных пользователем</p>
+                <form method="GET" action="{% url 'user_cabinet' %}">
+                    <label for="start_date">С даты:</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                    <label for="end_date">По дату:</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                    <button type="submit" class="btn btn-custom">Показать</button>
+                </form>
+                {% if total_income %}
+                    <p>Сумма доходов с {{ start_date }} по {{ end_date }} составляет {{ total_income }} BYN
+                        ({{ total_income_usd }} USD, {{ total_income_eur }} EUR, {{ total_income_rub }} RUB)</p>
+                {% endif %}
             </div>
         </div>
         <!-- Третий блок подгрузка данных с сайта нацбанка-->
@@ -81,7 +95,6 @@
                 </tbody>
             </table>
         </div>
-
     </div>
 </main>
 

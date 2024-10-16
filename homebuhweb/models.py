@@ -66,32 +66,24 @@ class Profile(models.Model):
         return self.user.username
 
 
-# class UserRegisterForm(UserCreationForm):
-#     email = forms.EmailField(label='Электронная почта')
-#
-#     class Meta:
-#         model = User
-#         fields = ['username', 'email', 'password1', 'password2']
-#         labels = {
-#             'username': 'Имя пользователя',
-#             'password1': 'Пароль',
-#             'password2': 'Подтверждение пароля',
-#         }
-#         help_texts = {
-#             'username': 'Обязательно. Не более 150 символов. Только буквы, цифры и @/./+/-/_',
-#             'password1': 'Ваш пароль должен содержать не менее 8 символов, не должен быть слишком распространенным и не должен состоять только из цифр.',
-#             'password2': 'Введите тот же пароль, что и выше, для проверки.',
-#         }
-#         error_messages = {
-#             'username': {
-#                 'max_length': 'Имя пользователя не может быть длиннее 150 символов.',
-#                 'required': 'Это поле обязательно.',
-#             },
-#             'password1': {
-#                 'required': 'Это поле обязательно.',
-#             },
-#             'password2': {
-#                 'required': 'Это поле обязательно.',
-#                 'password_mismatch': 'Пароли не совпадают.',
-#             },
-#         }
+class Income(models.Model):
+    INCOME_TYPES = [
+        ('заработная плата', 'Заработная плата'),
+        ('пенсия', 'Пенсия'),
+        ('стипендия', 'Стипендия'),
+        ('выигрыш', 'Выигрыш'),
+        ('доходы от индивидуальной предпринимательской деятельности', 'Доходы от индивидуальной предпринимательской деятельности'),
+        ('доходы от недвижимости', 'Доходы от недвижимости'),
+        ('доходы от депозита', 'Доходы от депозита'),
+        ('подарки', 'Подарки'),
+        ('наличные денежные средства', 'Наличные денежные средства'),
+        ('прочие доходы', 'Прочие доходы'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    income_type = models.CharField(max_length=100, choices=INCOME_TYPES)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.income_type} - {self.amount}"

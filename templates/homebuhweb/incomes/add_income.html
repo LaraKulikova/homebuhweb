@@ -1,0 +1,91 @@
+{# Страница доходы #}
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>{% if income %}Редактировать доход{% else %}Добавить доход{% endif %}</h2>
+        <form method="POST">
+            {% csrf_token %}
+            <!-- Поле для выбора вида дохода -->
+            <div class="mb-3">
+                <label for="id_income_type" class="form-label">Выбрать вид дохода:</label>
+                <select name="income_type" class="form-control" id="id_income_type" required>
+                    <option value="заработная плата"
+                            {% if income and income.income_type == "заработная плата" %}selected{% endif %}>Заработная
+                        плата
+                    </option>
+                    <option value="пенсия" {% if income and income.income_type == "пенсия" %}selected{% endif %}>
+                        Пенсия
+                    </option>
+                    <option value="стипендия" {% if income and income.income_type == "стипендия" %}selected{% endif %}>
+                        Стипендия
+                    </option>
+                    <option value="выигрыш" {% if income and income.income_type == "выигрыш" %}selected{% endif %}>
+                        Выигрыш
+                    </option>
+                    <option value="доходы от индивидуальной предпринимательской деятельности"
+                            {% if income and income.income_type == "доходы от индивидуальной предпринимательской деятельности" %}selected{% endif %}>
+                        Доходы от индивидуальной предпринимательской деятельности
+                    </option>
+                    <option value="доходы от недвижимости"
+                            {% if income and income.income_type == "доходы от недвижимости" %}selected{% endif %}>Доходы
+                        от недвижимости
+                    </option>
+                    <option value="доходы от депозита"
+                            {% if income and income.income_type == "доходы от депозита" %}selected{% endif %}>Доходы от
+                        депозита
+                    </option>
+                    <option value="подарки" {% if income and income.income_type == "подарки" %}selected{% endif %}>
+                        Подарки
+                    </option>
+                    <option value="наличные денежные средства"
+                            {% if income and income.income_type == "наличные денежные средства" %}selected{% endif %}>
+                        Наличные денежные средства
+                    </option>
+                    <option value="прочие доходы"
+                            {% if income and income.income_type == "прочие доходы" %}selected{% endif %}>Прочие доходы
+                    </option>
+                </select>
+            </div>
+            <!-- Поле для суммы -->
+            <div class="mb-3">
+                <label for="id_amount" class="form-label">Сумма:</label>
+                <input type="number" name="amount" class="form-control" id="id_amount"
+                       value="{% if income %}{{ income.amount }}{% endif %}" required>
+            </div>
+            <!-- Поле для выбора даты -->
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Дата:</label>
+                <input type="date" name="date" class="form-control" id="id_date"
+                       value="{% if income %}{{ income.date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <button type="submit" class="btn btn-custom">{% if income %}Сохранить{% else %}Добавить{% endif %}</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Отмена</a>
+        </form>
+        <!-- Таблица доходов -->
+        <h2>Список доходов</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Вид дохода</th>
+                <th>Сумма дохода</th>
+                <th>Дата дохода</th>
+                <th>Операции над доходами</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for income in incomes %}
+                <tr>
+                    <td>{{ income.income_type }}</td>
+                    <td>{{ income.amount }}</td>
+                    <td>{{ income.date|date:'d.m.Y' }}</td>
+                    <td>
+                        <a href="{% url 'edit_income' income.id %}" class="btn btn-warning">Изменить</a>
+                        <a href="{% url 'delete_income' income.id %}" class="btn btn-danger">Удалить</a>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

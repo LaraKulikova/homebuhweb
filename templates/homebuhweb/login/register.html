@@ -26,7 +26,7 @@
     <link href="{% static 'css/Registration_style.css' %}" rel="stylesheet">
     <style>
         .main-custom {
-            background-image: url('{% static ' images/knigi.jpg ' %}');
+            background-image: url('{% static 'images/knigi.jpg' %}');
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
@@ -81,6 +81,7 @@
                 <div class="form-text">Введите тот же пароль, что и выше, для проверки.</div>
             </div>
             <button type="submit" class="btn btn-custom">Зарегистрироваться</button>
+            <a href="{% url 'homepage' %}" class="btn btn-custom">Отмена</a>
         </form>
         {% if form.errors %}
             <div class="alert alert-danger">

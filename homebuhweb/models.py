@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
 from django.contrib.auth.models import User
+from django.contrib.auth.models import User
 from django.db import models
 
 
@@ -55,15 +56,6 @@ class MyUser(AbstractBaseUser):
         return self.is_admin
 
 
-# class UserProfile(models.Model):
-#     class Meta:
-#         db_table = 'user_profile_pictures'
-#
-#     user = models.OneToOneField(User, on_delete=models.CASCADE)
-#     avatar = models.ImageField(upload_to='avatars/')
-#     financial_report = models.FileField(upload_to='financial_reports/', null=True, blank=True)
-
-
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     avatar = models.ImageField(upload_to='avatars/', blank=True, null=True)
@@ -72,3 +64,34 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.user.username
+
+
+# class UserRegisterForm(UserCreationForm):
+#     email = forms.EmailField(label='Электронная почта')
+#
+#     class Meta:
+#         model = User
+#         fields = ['username', 'email', 'password1', 'password2']
+#         labels = {
+#             'username': 'Имя пользователя',
+#             'password1': 'Пароль',
+#             'password2': 'Подтверждение пароля',
+#         }
+#         help_texts = {
+#             'username': 'Обязательно. Не более 150 символов. Только буквы, цифры и @/./+/-/_',
+#             'password1': 'Ваш пароль должен содержать не менее 8 символов, не должен быть слишком распространенным и не должен состоять только из цифр.',
+#             'password2': 'Введите тот же пароль, что и выше, для проверки.',
+#         }
+#         error_messages = {
+#             'username': {
+#                 'max_length': 'Имя пользователя не может быть длиннее 150 символов.',
+#                 'required': 'Это поле обязательно.',
+#             },
+#             'password1': {
+#                 'required': 'Это поле обязательно.',
+#             },
+#             'password2': {
+#                 'required': 'Это поле обязательно.',
+#                 'password_mismatch': 'Пароли не совпадают.',
+#             },
+#         }

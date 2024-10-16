@@ -38,19 +38,20 @@ def login_view(request):
     return redirect('homepage')
 
 
-# @login_required
-# def user_cabinet(request):
-#     return render(request, 'homebuhweb/login/usercabinet.html')
 @login_required
 def user_cabinet(request):
     profile = request.user.profile
     avatar_url = profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png')
-    username = profile.user.username if profile.user.username else profile.user.email
+    first_name = profile.user.first_name
+    username = first_name if first_name else profile.user.username if profile.user.username else profile.user.email
+
+    print(f"Username: {username}")  # Отладочный вывод
 
     context = {
         'avatar_url': avatar_url,
         'username': username,
     }
+
     return render(request, 'homebuhweb/login/usercabinet.html', context)
 
 

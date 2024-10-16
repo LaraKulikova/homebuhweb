@@ -40,9 +40,19 @@ class UserForm(forms.ModelForm):
     class Meta:
         model = User
         fields = ['first_name', 'last_name', 'email']
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'Электронная почта',
+        }
 
 
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
         fields = ['avatar', 'phone', 'address']
+        labels = {
+            'avatar': 'Аватар',
+            'phone': 'Телефон',
+            'address': 'Адрес',
+        }

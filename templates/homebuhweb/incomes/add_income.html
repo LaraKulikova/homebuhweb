@@ -60,7 +60,7 @@
                        value="{% if income %}{{ income.date|date:'Y-m-d' }}{% endif %}" required>
             </div>
             <button type="submit" class="btn btn-custom">{% if income %}Сохранить{% else %}Добавить{% endif %}</button>
-            <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Отмена</a>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
         </form>
         <!-- Таблица доходов -->
         <h2>Список доходов</h2>

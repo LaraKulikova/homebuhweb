@@ -2,6 +2,7 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
 from django.contrib.auth.models import User
 from django.contrib.auth.models import User
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class MyUserManager(BaseUserManager):
@@ -72,7 +73,8 @@ class Income(models.Model):
         ('пенсия', 'Пенсия'),
         ('стипендия', 'Стипендия'),
         ('выигрыш', 'Выигрыш'),
-        ('доходы от индивидуальной предпринимательской деятельности', 'Доходы от индивидуальной предпринимательской деятельности'),
+        ('доходы от индивидуальной предпринимательской деятельности',
+         'Доходы от индивидуальной предпринимательской деятельности'),
         ('доходы от недвижимости', 'Доходы от недвижимости'),
         ('доходы от депозита', 'Доходы от депозита'),
         ('подарки', 'Подарки'),
@@ -87,3 +89,38 @@ class Income(models.Model):
 
     def __str__(self):
         return f"{self.income_type} - {self.amount}"
+
+
+class Category(models.Model):
+    name = models.CharField(max_length=100)
+
+    def __str__(self):
+        return self.name
+
+
+class SubCategory(models.Model):
+    name = models.CharField(max_length=100)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class SubSubCategory(models.Model):
+    name = models.CharField(max_length=100)
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.name
+
+
+class Expense(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    subcategory = models.ForeignKey(SubCategory, on_delete=models.CASCADE)
+    subsubcategory = models.ForeignKey(SubSubCategory, on_delete=models.CASCADE, null=True, blank=True)
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    date = models.DateField()
+
+    def __str__(self):
+        return f"{self.category} - {self.subcategory} - {self.subsubcategory} - {self.amount}"

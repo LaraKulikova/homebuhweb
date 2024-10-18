@@ -1,50 +1,5 @@
 console.log('homepage_script.js загружен');
 
-function handleRegistration() {
-    console.log('handleRegistration вызвана');
-    const username = document.getElementById('inputUsername').value;
-    const password = document.getElementById('inputPasswordReg').value;
-    const passwordConfirm = document.getElementById('inputPasswordConfirm').value;
-
-    if (password !== passwordConfirm) {
-        alert('Пароли не совпадают!');
-        return;
-    }
-
-    console.log('Отправка данных на сервер');
-    fetch('/register/', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({
-            username: username,
-            password: password,
-            password_confirm: passwordConfirm
-        })
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Ошибка сети');
-            }
-            return response.json();
-        })
-        .then(data => {
-            console.log('Ответ от сервера:', data);
-            if (data.success) {
-                alert('Регистрация прошла успешно!');
-                location.reload();
-            } else {
-                alert('Ошибка регистрации: ' + data.error);
-            }
-        })
-        .catch(error => {
-            console.error('Ошибка:', error);
-            alert('Произошла ошибка при регистрации. Пожалуйста, попробуйте позже.');
-        });
-}
-
 function getCookie(name) {
     let cookieValue = null;
     if (document.cookie && document.cookie !== '') {
@@ -93,52 +48,84 @@ function handleLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    console.log('DOM полностью загружен и разобран');
-    var backToTopButton = document.getElementById('back-to-top');
-    if (backToTopButton) {
-        console.log('Кнопка "Наверх" найдена');
-        backToTopButton.addEventListener('click', function (event) {
-            event.preventDefault();
-            console.log('Кнопка "Наверх" нажата');
-            document.documentElement.scrollIntoView({behavior: 'smooth', block: 'start'});
-        });
-    } else {
-        console.log('Кнопка "Наверх" не найдена');
-    }
-});
+    const categorySelect = document.getElementById('id_category');
+    const subcategorySelect = document.getElementById('id_subcategory');
+    const subsubcategorySelect = document.getElementById('id_subsubcategory');
 
-document.addEventListener('DOMContentLoaded', function () {
-    fetch('https://www.nbrb.by/api/exrates/rates?periodicity=0')
-        .then(response => response.json())
-        .then(data => {
-            const tableBody = document.querySelector('#currency-rates tbody');
-            const currencies = ['USD', 'EUR', 'RUB'];
-            data.forEach(rate => {
-                if (currencies.includes(rate.Cur_Abbreviation)) {
-                    const row = document.createElement('tr');
-                    const currencyCell = document.createElement('td');
-                    currencyCell.textContent = rate.Cur_Abbreviation;
-                    currencyCell.style.backgroundColor = '#A78B71';
-                    currencyCell.style.color = '#fff';
-                    const rateCell = document.createElement('td');
-                    rateCell.textContent = rate.Cur_OfficialRate;
-                    rateCell.style.backgroundColor = '#A78B71';
-                    rateCell.style.color = '#fff';
-                    row.appendChild(currencyCell);
-                    row.appendChild(rateCell);
-                    tableBody.appendChild(row);
-                }
+    categorySelect.addEventListener('change', function () {
+        const categoryId = this.value;
+        fetch(`/get_subcategories/${categoryId}/`)
+            .then(response => response.json())
+            .then(data => {
+                subcategorySelect.innerHTML = '<option value="">Выбрать подкатегорию</option>';
+                data.forEach(subcategory => {
+                    subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
+                });
+                subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>'; // Очистить подподкатегории
             });
-        })
-        .catch(error => console.error('Ошибка при загрузке данных:', error));
-});
+    });
 
+    subcategorySelect.addEventListener('change', function () {
+        const subcategoryId = this.value;
+        fetch(`/get_subsubcategories/${subcategoryId}/`)
+            .then(response => response.json())
+            .then(data => {
+                subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>';
+                data.forEach(subsubcategory => {
+                    subsubcategorySelect.innerHTML += `<option value="${subsubcategory.id}">${subsubcategory.name}</option>`;
+                });
+            });
+    });
+});
 
 document.addEventListener('DOMContentLoaded', function() {
-const dateElement = document.getElementById('current-date');
-dateElement.textContent = new Date().toLocaleDateString('ru-RU', {
-day: '2-digit',
-month: 'long',
-year: 'numeric'
+fetchCurrencyRates();
 });
-});
+
+function fetchCurrencyRates() {
+fetch('/api/currency-rates/')
+.then(response => response.json())
+.then(data => {
+const tbody = document.querySelector('#currency-rates tbody');
+tbody.innerHTML = ''; // Очистить существующие строки
+for (const [currency, rate] of Object.entries(data)) {
+const row = document.createElement('tr');
+const currencyCell = document.createElement('td');
+const rateCell = document.createElement('td');
+currencyCell.textContent = currency;
+rateCell.textContent = rate;
+row.appendChild(currencyCell);
+row.appendChild(rateCell);
+tbody.appendChild(row);
+}
+})
+.catch(error => console.error('Ошибка при получении курсов валют:', error));
+}
+//курсы валют
+console.log('homepage_script.js загружен');
+
+    document.addEventListener('DOMContentLoaded', function () {
+        fetchCurrencyRates();
+    });
+
+    function fetchCurrencyRates() {
+        fetch('https://www.nbrb.by/api/exrates/rates?periodicity=0')
+            .then(response => response.json())
+            .then(data => {
+                const tbody = document.querySelector('#currency-rates tbody');
+                tbody.innerHTML = ''; // Очистить существующие строки
+                data.forEach(rate => {
+                    if (['USD', 'EUR', 'RUB'].includes(rate.Cur_Abbreviation)) {
+                        const row = document.createElement('tr');
+                        const currencyCell = document.createElement('td');
+                        const rateCell = document.createElement('td');
+                        currencyCell.textContent = rate.Cur_Abbreviation;
+                        rateCell.textContent = rate.Cur_OfficialRate;
+                        row.appendChild(currencyCell);
+                        row.appendChild(rateCell);
+                        tbody.appendChild(row);
+                    }
+                });
+            })
+            .catch(error => console.error('Ошибка при получении курсов валют:', error));
+    }

@@ -1,15 +1,20 @@
-from datetime import datetime
+import datetime
 from decimal import Decimal, ROUND_HALF_UP
-from django.templatetags.static import static
+import requests
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import Group
-from django.shortcuts import get_object_or_404, render, redirect
-import requests
 
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
+from django.shortcuts import render, redirect
+from django.templatetags.static import static
+from .forms import ExpenseForm
 from .forms import UserForm, ProfileForm
+from .models import Category, SubCategory, SubSubCategory, Expense
 from .models import Income, Profile
+from datetime import datetime, date
 
 
 def homepage(request):
@@ -79,7 +84,8 @@ def user_cabinet(request):
 
         total_income_usd = (total_income / usd_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         total_income_eur = (total_income / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+        total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'),
+                                                                                 rounding=ROUND_HALF_UP)
 
     return render(request, 'homebuhweb/login/usercabinet.html', {
         'start_date': start_date,
@@ -93,15 +99,6 @@ def user_cabinet(request):
         'avatar_url': profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png'),
         'username': user.get_full_name() or user.username,
     })
-
-def get_currency_rates():
-    # Пример функции для получения курсов валют
-    # Здесь вы можете реализовать логику для получения курсов валют с сайта НБ БР
-    return {
-        'USD': Decimal('2.5'),
-        'EUR': Decimal('2.8'),
-        'RUB': Decimal('0.03'),
-    }
 
 
 @login_required
@@ -132,11 +129,6 @@ def delete_avatar(request):
 
 
 @login_required
-def add_income(request):
-    return render(request, 'homebuhweb/incomes/add_income.html')
-
-
-@login_required
 def add_income(request, id=None):
     if id:
         income = get_object_or_404(Income, id=id, user=request.user)
@@ -163,19 +155,6 @@ def add_income(request, id=None):
 
 
 @login_required
-def edit_income(request, id):
-    income = get_object_or_404(Income, id=id)
-    if request.method == 'POST':
-        income.income_type = request.POST['income_type']
-        income.amount = request.POST['amount']
-        income.date = request.POST['date']
-        income.save()
-        return redirect('add_income')
-
-    return render(request, 'homebuhweb/incomes/add_income.html', {'income': income})
-
-
-@login_required
 def delete_income(request, id):
     income = get_object_or_404(Income, id=id)
     income.delete()
@@ -194,3 +173,65 @@ def get_currency_rates():
             rates[rate['Cur_Abbreviation']] = Decimal(str(rate['Cur_OfficialRate']))
 
     return rates
+
+
+@login_required
+def add_expense(request):
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST)
+
+        if form.is_valid():
+            expense = form.save(commit=False)
+            expense.user = request.user
+            expense.save()
+            form = ExpenseForm()  # Очистить форму после сохранения
+        else:
+            print("Form is not valid:", form.errors)  # Отладочное сообщение
+    else:
+        form = ExpenseForm()
+
+    categories = Category.objects.all()
+    expenses_today = Expense.objects.filter(user=request.user, date=date.today())
+
+    context = {
+        'form': form,
+        'categories': categories,
+        'expenses_today': expenses_today,
+        'current_date': date.today()
+    }
+
+    return render(request, 'homebuhweb/expenses/add_expenses.html', context)
+
+
+@login_required
+def edit_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id, user=request.user)
+
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST, instance=expense)
+
+        if form.is_valid():
+            form.save()
+            return redirect('add_expense')
+    else:
+        form = ExpenseForm(instance=expense)
+
+    return render(request, 'homebuhweb/expenses/edit_expense.html', {'form': form, 'expense': expense})
+
+
+@login_required
+def delete_expense(request, expense_id):
+    expense = get_object_or_404(Expense, id=expense_id, user=request.user)
+    expense.delete()
+    return redirect('add_expense')
+
+
+@login_required
+def get_subcategories(request, category_id):
+    subcategories = SubCategory.objects.filter(category_id=category_id)
+    return JsonResponse(list(subcategories.values('id', 'name')), safe=False)
+
+
+def get_subsubcategories(request, subcategory_id):
+    subsubcategories = SubSubCategory.objects.filter(subcategory_id=subcategory_id)
+    return JsonResponse(list(subsubcategories.values('id', 'name')), safe=False)

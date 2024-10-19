@@ -22,4 +22,5 @@ urlpatterns = [
     path('get_subsubcategories/<int:subcategory_id>/', views.get_subsubcategories,
                        name='get_subsubcategories'),
     path('expenses/delete/<int:expense_id>/', views.delete_expense, name='delete_expense'),
+    path('add_car_expense/', views.add_car_expense, name='add_car_expense'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

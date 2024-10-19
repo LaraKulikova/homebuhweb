@@ -54,6 +54,7 @@
             <tr>
                 <th>Категория расхода</th>
                 <th>Подкатегория расхода</th>
+                <th>ID Подподкатегории</th>
                 <th>Подподкатегория расхода</th>
                 <th>Сумма расхода</th>
                 <th>Дата расхода</th>
@@ -65,49 +66,21 @@
                 <tr>
                     <td>{{ expense.category.name }}</td>
                     <td>{{ expense.subcategory.name }}</td>
+                    <td>{{ expense.subsubcategory.id }}</td>
                     <td>{{ expense.subsubcategory.name }}</td>
                     <td>{{ expense.amount }}</td>
                     <td>{{ expense.date|date:'d.m.Y' }}</td>
                     <td>
                         <a href="{% url 'edit_expense' expense.id %}" class="btn btn-warning">Изменить</a>
                         <a href="{% url 'delete_expense' expense.id %}" class="btn btn-danger">Удалить</a>
+                        {% if expense.subsubcategory.id == 71 or expense.subsubcategory.id == 72 %}
+                            <a href="{% url 'add_car_expense' %}" class="btn btn-info">Добавить данные для
+                                автомобиля</a>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}
             </tbody>
         </table>
     </div>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            const categorySelect = document.getElementById('id_category');
-            const subcategorySelect = document.getElementById('id_subcategory');
-            const subsubcategorySelect = document.getElementById('id_subsubcategory');
-
-            categorySelect.addEventListener('change', function () {
-                const categoryId = this.value;
-                fetch(`/get_subcategories/${categoryId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        subcategorySelect.innerHTML = '<option value="">Выбрать подкатегорию</option>';
-                        data.forEach(subcategory => {
-                            subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
-                        });
-                        subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>'; // Очистить подподкатегории
-                    });
-            });
-
-            subcategorySelect.addEventListener('change', function () {
-                const subcategoryId = this.value;
-                fetch(`/get_subsubcategories/${subcategoryId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>';
-                        data.forEach(subsubcategory => {
-                            subsubcategorySelect.innerHTML += `<option value="${subsubcategory.id}">${subsubcategory.name}</option>`;
-                        });
-                    });
-            });
-        });
-    </script>
 {% endblock %}

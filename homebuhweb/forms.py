@@ -28,6 +28,17 @@ class ProfileForm(forms.ModelForm):
 
 
 class ExpenseForm(forms.ModelForm):
+    subsubcategory_id = forms.CharField(
+        label='ID Подподкатегории',
+        required=False,
+        widget=forms.TextInput(attrs={'readonly': 'readonly'})
+    )
+
     class Meta:
         model = Expense
-        fields = ['category', 'subcategory', 'subsubcategory', 'amount', 'date']
+        fields = ['category', 'subcategory', 'subsubcategory', 'subsubcategory_id', 'amount', 'date']
+
+    def __init__(self, *args, **kwargs):
+        super(ExpenseForm, self).__init__(*args, **kwargs)
+        if self.instance and self.instance.pk:
+            self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id

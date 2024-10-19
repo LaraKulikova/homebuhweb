@@ -235,3 +235,23 @@ def get_subcategories(request, category_id):
 def get_subsubcategories(request, subcategory_id):
     subsubcategories = SubSubCategory.objects.filter(subcategory_id=subcategory_id)
     return JsonResponse(list(subsubcategories.values('id', 'name')), safe=False)
+
+
+def add_car_expense(request):
+    return render(request, 'homebuhweb/expenses/add_car_expense.html')
+
+def expense_view(request, expense_id=None):
+    if expense_id:
+        expense = get_object_or_404(Expense, id=expense_id)
+    else:
+        expense = None
+
+    if request.method == 'POST':
+        form = ExpenseForm(request.POST, instance=expense)
+        if form.is_valid():
+            form.save()
+            return redirect('expense_list')
+    else:
+        form = ExpenseForm(instance=expense)
+
+    return render(request, 'homebuhweb/expenses/edit_expense.html', {'form': form, 'expense': expense})

@@ -1,0 +1,21 @@
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>Добавить данные по расходу на автомобиль</h2>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Поля для ввода данных по расходу на автомобиль -->
+            <div class="mb-3">
+                <label for="id_amount" class="form-label">Сумма:</label>
+                <input type="number" name="amount" class="form-control" id="id_amount" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Дата:</label>
+                <input type="date" name="date" class="form-control" id="id_date" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Добавить</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
+        </form>
+    </div>
+{% endblock %}

@@ -10,7 +10,7 @@ from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.shortcuts import render, redirect
 from django.templatetags.static import static
-from .forms import ExpenseForm
+from .forms import ExpenseForm, CarExpenseForm
 from .forms import UserForm, ProfileForm
 from .models import Category, SubCategory, SubSubCategory, Expense
 from .models import Income, Profile
@@ -237,9 +237,6 @@ def get_subsubcategories(request, subcategory_id):
     return JsonResponse(list(subsubcategories.values('id', 'name')), safe=False)
 
 
-def add_car_expense(request):
-    return render(request, 'homebuhweb/expenses/add_car_expense.html')
-
 def expense_view(request, expense_id=None):
     if expense_id:
         expense = get_object_or_404(Expense, id=expense_id)
@@ -255,3 +252,22 @@ def expense_view(request, expense_id=None):
         form = ExpenseForm(instance=expense)
 
     return render(request, 'homebuhweb/expenses/edit_expense.html', {'form': form, 'expense': expense})
+
+
+def add_car_expense(request, expense_id):
+    expense = Expense.objects.get(id=expense_id)
+
+    if request.method == 'POST':
+        form = CarExpenseForm(request.POST)
+
+        if form.is_valid():
+            car_expense = form.save(commit=False)
+            car_expense.amount = expense.amount
+            car_expense.date = expense.date
+            car_expense.subsubcategory = expense
+            car_expense.save()
+            return redirect('user_cabinet')
+    else:
+        form = CarExpenseForm()
+
+    return render(request, 'homebuhweb/expenses/add_car_expense.html', {'form': form, 'expense': expense})

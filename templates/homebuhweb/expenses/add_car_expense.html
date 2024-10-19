@@ -7,15 +7,30 @@
             {% csrf_token %}
             <!-- Поля для ввода данных по расходу на автомобиль -->
             <div class="mb-3">
+                <label for="id_car_brand" class="form-label">Введите марку автомобиля:</label>
+                <input type="text" name="car_brand" class="form-control" id="id_car_brand" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_mileage" class="form-label">Пробег:</label>
+                <input type="number" name="mileage" class="form-control" id="id_mileage" min="0" max="999999" required>
+            </div>
+            <div class="mb-3">
                 <label for="id_amount" class="form-label">Сумма:</label>
-                <input type="number" name="amount" class="form-control" id="id_amount" required>
+                <input type="number" name="amount" class="form-control" id="id_amount" value="{{ expense.amount }}"
+                       readonly>
+            </div>
+            <div class="mb-3">
+                <label for="id_description" class="form-label">Описание товара:</label>
+                <input type="text" name="description" class="form-control" id="id_description" maxlength="250" required>
             </div>
             <div class="mb-3">
                 <label for="id_date" class="form-label">Дата:</label>
-                <input type="date" name="date" class="form-control" id="id_date" required>
+                <input type="text" name="date" class="form-control" id="id_date" value="{{ expense.date|date:'d.m.Y' }}"
+                       readonly>
             </div>
             <button type="submit" class="btn btn-custom">Добавить</button>
             <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
+            <a href="{% url 'add_expense' %}" class="btn btn-custom">Вернуться для добавления расходов</a>
         </form>
     </div>
 {% endblock %}

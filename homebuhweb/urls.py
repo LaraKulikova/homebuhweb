@@ -16,11 +16,9 @@ urlpatterns = [
     path('incomes/edit/<int:id>/', views.add_income, name='edit_income'),
     path('incomes/delete/<int:id>/', views.delete_income, name='delete_income'),
     path('expenses/add/', views.add_expense, name='add_expense'),
-    path('expenses/add/', views.add_expense, name='add_expense'),
     path('expenses/edit/<int:expense_id>/', views.edit_expense, name='edit_expense'),
     path('get_subcategories/<int:category_id>/', views.get_subcategories, name='get_subcategories'),
-    path('get_subsubcategories/<int:subcategory_id>/', views.get_subsubcategories,
-                       name='get_subsubcategories'),
+    path('get_subsubcategories/<int:subcategory_id>/', views.get_subsubcategories, name='get_subsubcategories'),
     path('expenses/delete/<int:expense_id>/', views.delete_expense, name='delete_expense'),
-    path('add_car_expense/', views.add_car_expense, name='add_car_expense'),
+    path('add_car_expense/<int:expense_id>/', views.add_car_expense, name='add_car_expense'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

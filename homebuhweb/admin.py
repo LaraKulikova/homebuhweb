@@ -1,12 +1,15 @@
 from django.contrib import admin
 from .models import Profile
-from .models import Category, SubCategory, SubSubCategory, Expense, Income
+from .models import (Category, SubCategory,
+                     SubSubCategory, Expense,
+                     Income,CarExpense)
 
 
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'avatar', 'phone', 'address')
 
 
+admin.site.register(CarExpense)
 admin.site.register(Profile, ProfileAdmin)
 admin.site.register(Income)
 admin.site.register(Category)

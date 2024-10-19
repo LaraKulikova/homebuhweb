@@ -1,8 +1,10 @@
 from django import forms
-from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from .models import Profile
+
+from .models import CarExpense
 from .models import Expense
+from .models import Profile
+
 
 
 class UserForm(forms.ModelForm):
@@ -42,3 +44,11 @@ class ExpenseForm(forms.ModelForm):
         super(ExpenseForm, self).__init__(*args, **kwargs)
         if self.instance and self.instance.pk:
             self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id
+
+
+class CarExpenseForm(forms.ModelForm):
+    class Meta:
+        model = CarExpense
+        fields = ['car_brand', 'mileage', 'description']
+
+

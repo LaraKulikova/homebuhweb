@@ -124,3 +124,15 @@ class Expense(models.Model):
 
     def __str__(self):
         return f"{self.category} - {self.subcategory} - {self.subsubcategory} - {self.amount}"
+
+
+class CarExpense(models.Model):
+    car_brand = models.CharField(max_length=100)
+    mileage = models.PositiveIntegerField()
+    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    description = models.CharField(max_length=250)
+    date = models.DateField()
+    subsubcategory = models.ForeignKey(Expense, on_delete=models.CASCADE, related_name='car_expenses')
+
+    def __str__(self):
+        return f"{self.car_brand} - {self.amount}"

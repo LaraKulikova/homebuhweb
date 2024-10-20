@@ -9,6 +9,7 @@ urlpatterns = [
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
     path('user_cabinet/', views.user_cabinet, name='user_cabinet'),
+path('api/currency-rates/', views.get_currency_rates, name='currency_rates'),
     path('user_prof/', views.user_prof, name='user_prof'),
     path('delete_avatar/', views.delete_avatar, name='delete_avatar'),
     path('logout/', auth_views.LogoutView.as_view(next_page='homepage'), name='logout'),
@@ -25,4 +26,7 @@ urlpatterns = [
     path('add_planned_expense.html/', views.add_planned_expense, name='add_planned_expense'),
     path('edit_planned_expense/<int:pk>/', views.edit_planned_expense, name='edit_planned_expense'),
     path('delete_planned_expense/<int:pk>/', views.delete_planned_expense, name='delete_planned_expense'),
+    path('add_credit/', views.add_credit, name='add_credit'),
+    path('edit_credit/<int:pk>/', views.edit_credit, name='edit_credit'),
+    path('delete_credit/<int:pk>/', views.delete_credit, name='delete_credit'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

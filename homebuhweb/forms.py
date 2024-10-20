@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 
 from .models import CarExpense
 from .models import Expense
-from .models import Profile, PlannedExpense
+from .models import Profile, PlannedExpense, Credit
 
 
 class UserForm(forms.ModelForm):
@@ -41,9 +41,18 @@ class ExpenseForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super(ExpenseForm, self).__init__(*args, **kwargs)
+
         if self.instance and self.instance.pk:
             self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id
 
+        self.fields['amount'].widget.attrs.update({'min': '0', 'step': '0.01'})
+
+    def clean_amount(self):
+        amount = self.cleaned_data.get('amount')
+
+        if amount < 0:
+            raise forms.ValidationError('Сумма не может быть отрицательной')
+        return amount
 
 class CarExpenseForm(forms.ModelForm):
     class Meta:
@@ -65,4 +74,19 @@ class PlannedExpenseForm(forms.ModelForm):
             'start_date': 'Дата начала накопления',
             'item_cost': 'Стоимость покупки',
             'months_to_save': 'Количество месяцев за которые нужно накопить',
+        }
+
+class CreditForm(forms.ModelForm):
+    class Meta:
+        model = Credit
+        fields = ['credit_name', 'credit_amount', 'credit_term', 'interest_rate', 'issue_date']
+        widgets = {
+            'issue_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+        labels = {
+            'credit_name': 'Название кредита',
+            'credit_amount': 'Сумма кредита',
+            'credit_term': 'Срок кредита',
+            'interest_rate': 'Процентная ставка',
+            'issue_date': 'Дата выдачи',
         }

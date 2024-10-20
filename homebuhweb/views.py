@@ -17,6 +17,8 @@ from .models import Income, Profile
 from datetime import datetime, date
 from .models import PlannedExpense
 from .forms import PlannedExpenseForm
+from .models import Credit
+from .forms import CreditForm
 
 
 def homepage(request):
@@ -79,7 +81,7 @@ def user_cabinet(request):
         total_income = sum(income.amount for income in incomes)
 
         # Получение курсов валют
-        currency_rates = get_currency_rates()
+        currency_rates = get_currency_rates(request)
         usd_rate = currency_rates.get('USD', Decimal('1'))
         eur_rate = currency_rates.get('EUR', Decimal('1'))
         rub_rate = currency_rates.get('RUB', Decimal('1'))
@@ -163,7 +165,7 @@ def delete_income(request, id):
     return redirect('add_income')
 
 
-def get_currency_rates():
+def get_currency_rates(request):
     url = 'https://www.nbrb.by/api/exrates/rates?periodicity=0'
     response = requests.get(url)
     data = response.json()
@@ -174,7 +176,7 @@ def get_currency_rates():
         if rate['Cur_Abbreviation'] in currencies:
             rates[rate['Cur_Abbreviation']] = Decimal(str(rate['Cur_OfficialRate']))
 
-    return rates
+    return JsonResponse(rates)
 
 
 @login_required
@@ -314,3 +316,44 @@ def delete_planned_expense(request, pk):
         planned_expense.delete()
         return redirect('plan_expenses')
     return render(request, 'homebuhweb/expenses/delete_planned_expense.html', {'planned_expense': planned_expense})
+
+
+def add_credit(request):
+    if request.method == 'POST':
+        form = CreditForm(request.POST)
+        if form.is_valid():
+            credit = form.save(commit=False)
+            credit.user = request.user
+            credit.save()
+            return redirect('add_credit')
+    else:
+        form = CreditForm()
+
+    credits = Credit.objects.filter(user=request.user)
+    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits})
+
+
+def edit_credit(request, pk):
+    credit = get_object_or_404(Credit, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        form = CreditForm(request.POST, instance=credit)
+
+        if form.is_valid():
+            form.save()
+            return redirect('add_credit')
+    else:
+        form = CreditForm(instance=credit)
+
+    credits = Credit.objects.filter(user=request.user)
+    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits})
+
+
+def delete_credit(request, pk):
+    credit = get_object_or_404(Credit, pk=pk, user=request.user)
+
+    if request.method == 'POST':
+        credit.delete()
+        return redirect('add_credit')
+
+    return redirect('add_credit')

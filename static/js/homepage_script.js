@@ -78,54 +78,32 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 });
 
-document.addEventListener('DOMContentLoaded', function() {
-fetchCurrencyRates();
+document.addEventListener('DOMContentLoaded', function () {
+    fetch('/api/currency-rates/')
+        .then(response => response.json())
+        .then(data => {
+            const tableBody = document.querySelector('#currency-rates tbody');
+            tableBody.innerHTML = '';
+            for (const [currency, rate] of Object.entries(data)) {
+                const row = document.createElement('tr');
+                row.innerHTML = `<td>${currency}</td><td>${rate}</td>`;
+                tableBody.appendChild(row);
+            }
+        })
+        .catch(error => console.error('Error fetching currency rates:', error));
 });
 
-function fetchCurrencyRates() {
-fetch('/api/currency-rates/')
-.then(response => response.json())
-.then(data => {
-const tbody = document.querySelector('#currency-rates tbody');
-tbody.innerHTML = ''; // Очистить существующие строки
-for (const [currency, rate] of Object.entries(data)) {
-const row = document.createElement('tr');
-const currencyCell = document.createElement('td');
-const rateCell = document.createElement('td');
-currencyCell.textContent = currency;
-rateCell.textContent = rate;
-row.appendChild(currencyCell);
-row.appendChild(rateCell);
-tbody.appendChild(row);
-}
-})
-.catch(error => console.error('Ошибка при получении курсов валют:', error));
-}
-//курсы валют
-console.log('homepage_script.js загружен');
 
-    document.addEventListener('DOMContentLoaded', function () {
-        fetchCurrencyRates();
-    });
+function calculatePayments() {
+    const creditAmount = parseFloat(document.getElementById('id_credit_amount').value);
+    const creditTerm = parseInt(document.getElementById('id_credit_term').value);
+    const interestRate = parseFloat(document.getElementById('id_interest_rate').value) / 100 / 12; // Предполагаем, что процентная ставка вводится в годовых процентах
 
-    function fetchCurrencyRates() {
-        fetch('https://www.nbrb.by/api/exrates/rates?periodicity=0')
-            .then(response => response.json())
-            .then(data => {
-                const tbody = document.querySelector('#currency-rates tbody');
-                tbody.innerHTML = ''; // Очистить существующие строки
-                data.forEach(rate => {
-                    if (['USD', 'EUR', 'RUB'].includes(rate.Cur_Abbreviation)) {
-                        const row = document.createElement('tr');
-                        const currencyCell = document.createElement('td');
-                        const rateCell = document.createElement('td');
-                        currencyCell.textContent = rate.Cur_Abbreviation;
-                        rateCell.textContent = rate.Cur_OfficialRate;
-                        row.appendChild(currencyCell);
-                        row.appendChild(rateCell);
-                        tbody.appendChild(row);
-                    }
-                });
-            })
-            .catch(error => console.error('Ошибка при получении курсов валют:', error));
+    if (isNaN(creditAmount) || isNaN(creditTerm) || isNaN(interestRate)) {
+        alert('Пожалуйста, введите корректные значения для суммы кредита, срока и процентной ставки.');
+        return;
     }
+
+    const monthlyPayment = (creditAmount * interestRate) / (1 - Math.pow(1 + interestRate, -creditTerm));
+    document.getElementById('monthly_payment').textContent = `Ежемесячный платеж: ${monthlyPayment.toFixed(2)} руб.`;
+}

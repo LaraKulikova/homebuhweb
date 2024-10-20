@@ -1,0 +1,102 @@
+{% extends 'homebuhweb/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Добавить кредит/рассрочку</h2>
+        <form method="post" class="mx-auto" style="max-width: 600px;">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_credit_name" class="form-label">Наименование кредита/рассрочки</label>
+                {{ form.credit_name }}
+            </div>
+            <div class="mb-3">
+                <label for="id_credit_amount" class="form-label">Сумма кредита/рассрочки</label>
+                {{ form.credit_amount }}
+            </div>
+            <div class="mb-3">
+                <label for="id_credit_term" class="form-label">Срок кредита/рассрочки (в месяцах)</label>
+                {{ form.credit_term }}
+            </div>
+            <div class="mb-3">
+                <label for="id_interest_rate" class="form-label">Процентная ставка</label>
+                {{ form.interest_rate }}
+            </div>
+            <div class="mb-3">
+                <label for="id_issue_date" class="form-label">Дата выдачи</label>
+                {{ form.issue_date }}
+            </div>
+            <button type="button" class="btn btn-custom my-2" onclick="calculatePayments()">Рассчитать</button>
+            <button type="submit" class="btn btn-custom my-2">Сохранить</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom my-2">Вернуться в личный кабинет</a>
+        </form>
+        <div id="calculation-results" class="mt-4" style="display: none;">
+            <h4>Результаты расчета</h4>
+            <p>Сумма по основному долгу: <span id="principal-amount"></span></p>
+            <p>Сумма процентов в месяц: <span id="monthly-interest"></span></p>
+            <p>Общая сумма платежа в месяц: <span id="monthly-payment"></span></p>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Сохраненные кредиты/рассрочки</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Наименование</th>
+                <th>Дата выдачи</th>
+                <th>Сумма</th>
+                <th>Процентная ставка</th>
+                <th>Срок (мес.)</th>
+                <th>Сумма по основному долгу</th>
+                <th>Сумма процентов в месяц</th>
+                <th>Общая сумма платежа в месяц</th>
+                <th>Операции</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for credit in credits %}
+                <tr>
+                    <td>{{ credit.credit_name }}</td>
+                    <td>{{ credit.issue_date|date:"d.m.Y" }}</td>
+                    <td>{{ credit.credit_amount|floatformat:2 }}</td>
+                    <td>{{ credit.interest_rate|floatformat:2 }}%</td>
+                    <td>{{ credit.credit_term }}</td>
+                    <td>{{ credit.principal_amount|floatformat:2 }}</td>
+                    <td>{{ credit.monthly_interest|floatformat:2 }}</td>
+                    <td>{{ credit.monthly_payment|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'edit_credit' credit.id %}" class="btn btn-custom btn-sm">Изменить</a>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                data-credit-id="{{ credit.id }}" data-credit-name="{{ credit.credit_name }}">Удалить
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Удалить кредит/рассрочку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить кредит/рассрочку "<span id="modal-credit-name"></span>"?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" id="delete-form">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{% static 'js/homepage_script.js' %}"></script>
+{% endblock %}

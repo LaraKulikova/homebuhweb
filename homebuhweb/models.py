@@ -154,3 +154,13 @@ class PlannedExpense(models.Model):
 
     def __str__(self):
         return self.item_name
+class Credit(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    credit_name = models.CharField(max_length=255)
+    credit_amount = models.PositiveIntegerField()
+    credit_term = models.IntegerField()
+    interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
+    issue_date = models.DateField()
+
+    def __str__(self):
+        return self.credit_name

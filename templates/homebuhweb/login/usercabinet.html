@@ -14,6 +14,7 @@
         <div class="container d-flex justify-content-between align-items-center">
             <a href="#" class="navbar-brand d-flex align-items-center">
                 <img src="
+                        
                         {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
                      width="40" height="40" alt="favicon" class="me-2">
                 <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
@@ -21,8 +22,8 @@
                 <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
             </a>
             <div>
-                <span id="current-date"
-                      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);"></span>
+<span id="current-date"
+      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);"></span>
                 <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
@@ -41,7 +42,7 @@
                 <a href="{% url 'add_income' %}" class="btn btn-custom my-2">Добавить доход</a>
                 <a href="{% url 'add_expense' %}" class="btn btn-custom my-2">Добавить расход</a>
                 <a href="{% url 'plan_expenses' %}" class="btn btn-custom my-2">Добавить плановый расход</a>
-                <button class="btn btn-custom my-2">Добавить кредит/рассрочку</button>
+                <a href="{% url 'add_credit' %}" class="btn btn-custom my-2">Добавить кредит/рассрочку</a>
                 <button class="btn btn-custom my-2">Просмотреть графики</button>
             </div>
             <div>
@@ -61,19 +62,24 @@
             </div>
         </div>
         <div class="col-md-4">
-            <h2>Курсы валют НБ БР на Сегодня</h2>
-            <table id="currency-rates" class="table table-striped">
-                <thead>
-                <tr>
-                    <th style="background-color: #A78B71; color: #fff;">Валюта</th>
-                    <th style="background-color: #A78B71; color: #fff;">Курс</th>
-                </tr>
-                </thead>
-                <tbody>
-                <!-- Данные будут загружены автоматически -->
-                </tbody>
-            </table>
-        </div>
+<h2>Курсы валют НБ БР на Сегодня</h2>
+<table id="currency-rates" class="table table-striped">
+<thead>
+<tr>
+<th style="background-color: #A78B71; color: #fff;">Валюта</th>
+<th style="background-color: #A78B71; color: #fff;">Курс</th>
+</tr>
+</thead>
+<tbody>
+{% for currency, rate in currency_rates.items %}
+<tr>
+<td>{{ currency }}</td>
+<td>{{ rate }}</td>
+</tr>
+{% endfor %}
+</tbody>
+</table>
+</div>
     </div>
 </main>
 

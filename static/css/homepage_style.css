@@ -148,8 +148,7 @@ html, body {
 
 .lead-text {
     color: var(--secondary-color) !important;
-    font-family: 'Duality Regular', sans-serif;
-    font-size: 20px;
+    font-family: sans-serif; /* Добавлен недостающий шрифт */
 }
 
 .form-text {
@@ -181,20 +180,47 @@ html, body {
 }
 
 .form-label {
-font-weight: bold;
-color: var(--primary-color);
+    font-weight: bold;
+    color: var(--primary-color);
 }
 
 .form-control {
-background-color: var(--background-color);
-color: var(--primary-color);
-border: 1px solid var(--primary-color);
-border-radius: 5px;
-padding: 10px;
+    background-color: var(--background-color);
+    color: var(--primary-color);
+    border: 1px solid var(--primary-color);
+    border-radius: 5px;
+    padding: 10px;
 }
 
 .form-control:focus {
-border-color: var(--secondary-color);
-box-shadow: 0 0 5px var(--secondary-color);
+    border-color: var(--secondary-color);
+    box-shadow: 0 0 5px var(--secondary-color);
 }
 
+.table-striped {
+background-color: var(--background-color);
+color: var(--primary-color);
+}
+
+.table-striped th {
+background-color: var(--primary-color);
+color: #fff;
+}
+
+.table-striped td {
+border: 1px solid var(--primary-color);
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+background-color: var(--secondary-hover-color);
+}
+
+.table-striped tbody tr:nth-of-type(even) {
+background-color: var(--background-color);
+}
+
+.table-striped th {
+background-color: var(--primary-color);
+color: #fff;
+text-align: center; /* Добавлено для выравнивания по центру */
+}

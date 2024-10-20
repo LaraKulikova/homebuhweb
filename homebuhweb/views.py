@@ -214,12 +214,12 @@ def add_expense(request):
             expense.save()
             form = ExpenseForm()  # Очистить форму после сохранения
         else:
-            print("Form is not valid:", form.errors)  # Отладочное сообщение
+            print("Ошибка формы:", form.errors)  # Отладочное сообщение
     else:
         form = ExpenseForm()
 
     categories = Category.objects.all()
-    expenses_today = Expense.objects.filter(user=request.user, date=date.today())
+    expenses_today = Expense.objects.filter(user=request.user)
     total_expenses = expenses_today.aggregate(Sum('amount'))['amount__sum'] or 0
 
     context = {

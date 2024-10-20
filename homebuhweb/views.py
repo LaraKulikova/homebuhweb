@@ -1,26 +1,35 @@
+import base64
 import datetime
+import io
+import urllib
+import urllib.parse
+from datetime import date, timedelta
+from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
+
+import matplotlib.pyplot as plt
+import pandas as pd
 import requests
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import Group
 from django.db.models import Sum
-
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
+from django.shortcuts import render
 from django.templatetags.static import static
-from .forms import ExpenseForm, CarExpenseForm
-from .forms import UserForm, ProfileForm
-from .models import Category, SubCategory, SubSubCategory, Expense
-from .models import Income, Profile
-from datetime import datetime, date
-from .models import PlannedExpense
-from .forms import PlannedExpenseForm
-from .models import Credit
-from .forms import CreditForm
 
+from .forms import CreditForm
+from .forms import ExpenseForm, CarExpenseForm
+from .forms import PlannedExpenseForm
+from .forms import UserForm, ProfileForm
+from .models import Category, SubCategory, SubSubCategory
+from .models import Credit
+from .models import Expense
+from .models import Income, Profile
+from .models import PlannedExpense
 
 
 def homepage(request):
@@ -147,7 +156,6 @@ def delete_avatar(request):
     user = request.user
     user.profile.avatar.delete()
     return redirect('user_prof')
-
 
 
 @login_required
@@ -414,5 +422,45 @@ def delete_credit(request):
     return redirect('add_credit')
 
 
+@login_required
 def show_grafics(request):
-    return render(request, 'homebuhweb/diagrams/show_grafics.html')
+    # Получаем дату три месяца назад
+    three_months_ago = date.today() - timedelta(days=90)
+
+    # Получаем расходы за последние три месяца
+    expenses = Expense.objects.filter(user=request.user, date__gte=three_months_ago)
+
+    # Группируем расходы по подподкатегориям и суммируем их
+    expenses_by_subsubcategory = expenses.values('subsubcategory__name').annotate(total=Sum('amount'))
+
+    # Преобразуем данные в DataFrame
+    df = pd.DataFrame(list(expenses_by_subsubcategory))
+
+    # Проверка данных
+    print(df)
+
+    # Убедитесь, что столбец 'total' является числовым
+    df['total'] = pd.to_numeric(df['total'], errors='coerce')
+
+    # Создаем круговой график
+    fig, ax = plt.subplots()
+    df.set_index('subsubcategory__name').plot.pie(y='total', ax=ax, autopct='%1.1f%%', startangle=90)
+    ax.set_ylabel('')
+    ax.set_title('Процентное отношение расходов по категориям')
+
+    # Уменьшаем размер шрифта подписей
+    plt.setp(ax.get_legend().get_texts(), fontsize='small')
+
+    # Сохраняем график в буфер
+    buf = io.BytesIO()
+    plt.savefig(buf, format='png')
+    buf.seek(0)
+    string = base64.b64encode(buf.read())
+    uri = urllib.parse.quote(string)
+
+    context = {
+        'data': uri,
+    }
+
+    return render(request, 'homebuhweb/diagrams/show_grafics.html', context)
+

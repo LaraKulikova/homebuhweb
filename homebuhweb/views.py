@@ -15,6 +15,8 @@ from .forms import UserForm, ProfileForm
 from .models import Category, SubCategory, SubSubCategory, Expense
 from .models import Income, Profile
 from datetime import datetime, date
+from .models import PlannedExpense
+from .forms import PlannedExpenseForm
 
 
 def homepage(request):
@@ -271,3 +273,44 @@ def add_car_expense(request, expense_id):
         form = CarExpenseForm()
 
     return render(request, 'homebuhweb/expenses/add_car_expense.html', {'form': form, 'expense': expense})
+
+
+def plan_expenses(request):
+    expenses = PlannedExpense.objects.filter(user=request.user)
+    return render(request, 'homebuhweb/expenses/plan_expenses.html', {'expenses': expenses})
+
+
+def add_planned_expense(request):
+    if request.method == 'POST':
+        form = PlannedExpenseForm(request.POST)
+        if form.is_valid():
+            planned_expense = form.save(commit=False)
+            planned_expense.user = request.user
+            planned_expense.calculate_monthly_amount()
+            planned_expense.save()
+            return redirect('plan_expenses')
+    else:
+        form = PlannedExpenseForm()
+    return render(request, 'homebuhweb/expenses/add_planned_expense.html', {'form': form})
+
+
+def edit_planned_expense(request, pk):
+    planned_expense = get_object_or_404(PlannedExpense, pk=pk, user=request.user)
+    if request.method == 'POST':
+        form = PlannedExpenseForm(request.POST, instance=planned_expense)
+        if form.is_valid():
+            planned_expense = form.save(commit=False)
+            planned_expense.calculate_monthly_amount()
+            planned_expense.save()
+            return redirect('plan_expenses')
+    else:
+        form = PlannedExpenseForm(instance=planned_expense)
+    return render(request, 'homebuhweb/expenses/edit_planned_expense.html', {'form': form})
+
+
+def delete_planned_expense(request, pk):
+    planned_expense = get_object_or_404(PlannedExpense, pk=pk, user=request.user)
+    if request.method == 'POST':
+        planned_expense.delete()
+        return redirect('plan_expenses')
+    return render(request, 'homebuhweb/expenses/delete_planned_expense.html', {'planned_expense': planned_expense})

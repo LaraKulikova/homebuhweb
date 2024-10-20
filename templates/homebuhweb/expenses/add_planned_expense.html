@@ -1,0 +1,27 @@
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Добавить плановый расход</h2>
+        <form method="post" class="mx-auto" style="max-width: 600px;">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_item_name" class="form-label">Наименование планируемой покупки</label>
+                <input type="text" name="item_name" id="id_item_name" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_start_date" class="form-label">Дата начала накопления</label>
+                <input type="date" name="start_date" id="id_start_date" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_item_cost" class="form-label">Стоимость покупки</label>
+                <input type="number" name="item_cost" id="id_item_cost" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_months_to_save" class="form-label">Количество месяцев за которые нужно накопить</label>
+                <input type="number" name="months_to_save" id="id_months_to_save" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom my-2">Сохранить</button>
+        </form>
+    </div>
+{% endblock %}

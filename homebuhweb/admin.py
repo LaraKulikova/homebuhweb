@@ -2,7 +2,7 @@ from django.contrib import admin
 from .models import Profile
 from .models import (Category, SubCategory,
                      SubSubCategory, Expense,
-                     Income,CarExpense)
+                     Income, CarExpense, PlannedExpense)
 
 
 class ProfileAdmin(admin.ModelAdmin):
@@ -16,3 +16,4 @@ admin.site.register(Category)
 admin.site.register(SubCategory)
 admin.site.register(SubSubCategory)
 admin.site.register(Expense)
+admin.site.register(PlannedExpense)

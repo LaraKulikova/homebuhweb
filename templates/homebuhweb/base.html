@@ -27,28 +27,27 @@
 </head>
 <body style="background-color: #A78B71; margin: 0; padding: 0; height: 100%; width: 100%;">
 <header>
-
     <div class="navbar navbar-custom shadow-sm">
         <div class="container d-flex justify-content-between align-items-center">
             <a href="#" class="navbar-brand d-flex align-items-center">
-                <img src="{% static 'images/apple-touch-icon.png' %}" width="40" height="40" alt="favicon" class="me-2">
+                <img src="
+                        {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
+                     width="40" height="40" alt="favicon" class="me-2">
                 <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
                     ПОЛЬЗОВАТЕЛЯ</strong>
+                <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
             </a>
             <div>
-                {% block header_buttons %}
-                    <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
-                    <form method="post" action="{% url 'logout' %}" style="display: inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
-                    </form>
-                {% endblock %}
                 <span id="current-date"
-                      style="margin-left: 20px; font-size: 16px; color: var(--secondary-color);"></span>
+                      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);"></span>
+                <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
+                </form>
             </div>
         </div>
     </div>
-
 </header>
 
 <main class="container py-5 main-custom">

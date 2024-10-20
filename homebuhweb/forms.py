@@ -3,8 +3,7 @@ from django.contrib.auth.models import User
 
 from .models import CarExpense
 from .models import Expense
-from .models import Profile
-
+from .models import Profile, PlannedExpense
 
 
 class UserForm(forms.ModelForm):
@@ -52,3 +51,18 @@ class CarExpenseForm(forms.ModelForm):
         fields = ['car_brand', 'mileage', 'description']
 
 
+class PlannedExpenseForm(forms.ModelForm):
+    class Meta:
+        model = PlannedExpense
+        fields = ['item_name', 'start_date', 'item_cost', 'months_to_save']
+
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
+        labels = {
+            'item_name': 'Наименование планируемой покупки',
+            'start_date': 'Дата начала накопления',
+            'item_cost': 'Стоимость покупки',
+            'months_to_save': 'Количество месяцев за которые нужно накопить',
+        }

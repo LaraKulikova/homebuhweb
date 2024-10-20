@@ -136,3 +136,21 @@ class CarExpense(models.Model):
 
     def __str__(self):
         return f"{self.car_brand} - {self.amount}"
+
+class PlannedExpense(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    item_name = models.CharField(max_length=255)
+    start_date = models.DateField()
+    item_cost = models.DecimalField(max_digits=10, decimal_places=2)
+    months_to_save = models.IntegerField()
+    monthly_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    def calculate_monthly_amount(self):
+        if self.months_to_save > 0:
+            self.monthly_amount = self.item_cost / self.months_to_save
+        else:
+            self.monthly_amount = 0
+        self.save()
+
+    def __str__(self):
+        return self.item_name

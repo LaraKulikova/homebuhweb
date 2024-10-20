@@ -180,3 +180,21 @@ html, body {
     max-width: 500px;
 }
 
+.form-label {
+font-weight: bold;
+color: var(--primary-color);
+}
+
+.form-control {
+background-color: var(--background-color);
+color: var(--primary-color);
+border: 1px solid var(--primary-color);
+border-radius: 5px;
+padding: 10px;
+}
+
+.form-control:focus {
+border-color: var(--secondary-color);
+box-shadow: 0 0 5px var(--secondary-color);
+}
+

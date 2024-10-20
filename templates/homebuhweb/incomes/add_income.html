@@ -1,4 +1,3 @@
-{# Страница доходы #}
 {% extends 'homebuhweb/base.html' %}
 
 {% block content %}
@@ -14,8 +13,7 @@
                             {% if income and income.income_type == "заработная плата" %}selected{% endif %}>Заработная
                         плата
                     </option>
-                    <option value="пенсия" {% if income and income.income_type == "пенсия" %}selected{% endif %}>
-                        Пенсия
+                    <option value="пенсия" {% if income and income.income_type == "пенсия" %}selected{% endif %}>Пенсия
                     </option>
                     <option value="стипендия" {% if income and income.income_type == "стипендия" %}selected{% endif %}>
                         Стипендия
@@ -62,6 +60,8 @@
             <button type="submit" class="btn btn-custom">{% if income %}Сохранить{% else %}Добавить{% endif %}</button>
             <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
         </form>
+        <!-- Общая сумма доходов -->
+        <h2>Общая сумма доходов: {{ total_income }}</h2>
         <!-- Таблица доходов -->
         <h2>Список доходов</h2>
         <table class="table table-striped">

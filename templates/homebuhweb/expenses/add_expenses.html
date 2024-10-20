@@ -47,6 +47,8 @@
             <button type="submit" class="btn btn-custom">{% if expense %}Сохранить{% else %}Добавить{% endif %}</button>
             <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
         </form>
+        <!-- Общая сумма расходов -->
+        <h2>Общая сумма расходов на {{ current_date|date:"d.m.Y" }}: {{ total_expenses }}</h2>
         <!-- Таблица расходов -->
         <h2>Список расходов на {{ current_date|date:"d.m.Y" }}</h2>
         <table class="table table-striped">
@@ -72,7 +74,8 @@
                         <a href="{% url 'edit_expense' expense.id %}" class="btn btn-warning">Изменить</a>
                         <a href="{% url 'delete_expense' expense.id %}" class="btn btn-danger">Удалить</a>
                         {% if expense.subsubcategory.id == 71 or expense.subsubcategory.id == 72 %}
-                            <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Ввести пробег и примечание</a>
+                            <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Ввести
+                                пробег и примечание</a>
                         {% endif %}
                     </td>
                 </tr>

@@ -5,6 +5,7 @@ from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import Group
+from django.db.models import Sum
 
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
@@ -52,7 +53,17 @@ def login_view(request):
     return redirect('homepage')
 
 
-@login_required
+def calculate_balance(user):
+    incomes = Income.objects.filter(user=user)
+    expenses = Expense.objects.filter(user=user)
+
+    total_income = incomes.aggregate(Sum('amount'))['amount__sum'] or 0
+    total_expenses = expenses.aggregate(Sum('amount'))['amount__sum'] or 0
+    balance = total_income - total_expenses
+
+    return total_income, total_expenses, balance
+
+
 def user_cabinet(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -60,6 +71,8 @@ def user_cabinet(request):
     total_income_usd = Decimal('0.00')
     total_income_eur = Decimal('0.00')
     total_income_rub = Decimal('0.00')
+
+    total_income, total_expenses, balance = calculate_balance(request.user)
 
     user = request.user
     profile = get_object_or_404(Profile, user=user)
@@ -99,6 +112,9 @@ def user_cabinet(request):
         'total_income_usd': total_income_usd,
         'total_income_eur': total_income_eur,
         'total_income_rub': total_income_rub,
+        'total_expenses': total_expenses,
+        'balance': balance,
+        'balance_value': balance,
         'user_form': user_form,
         'profile_form': profile_form,
         'avatar_url': profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png'),
@@ -133,6 +149,7 @@ def delete_avatar(request):
     return redirect('user_prof')
 
 
+
 @login_required
 def add_income(request, id=None):
     if id:
@@ -156,7 +173,13 @@ def add_income(request, id=None):
         return redirect('add_income')
 
     incomes = Income.objects.filter(user=request.user)
-    return render(request, 'homebuhweb/incomes/add_income.html', {'income': income, 'incomes': incomes})
+    total_income = incomes.aggregate(Sum('amount'))['amount__sum'] or 0
+
+    return render(request, 'homebuhweb/incomes/add_income.html', {
+        'income': income,
+        'incomes': incomes,
+        'total_income': total_income
+    })
 
 
 @login_required
@@ -197,12 +220,14 @@ def add_expense(request):
 
     categories = Category.objects.all()
     expenses_today = Expense.objects.filter(user=request.user, date=date.today())
+    total_expenses = expenses_today.aggregate(Sum('amount'))['amount__sum'] or 0
 
     context = {
         'form': form,
         'categories': categories,
         'expenses_today': expenses_today,
-        'current_date': date.today()
+        'current_date': date.today(),
+        'total_expenses': total_expenses
     }
 
     return render(request, 'homebuhweb/expenses/add_expenses.html', context)

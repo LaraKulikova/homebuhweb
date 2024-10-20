@@ -22,8 +22,8 @@
                 <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
             </a>
             <div>
-<span id="current-date"
-      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);"></span>
+                <span id="current-date"
+                      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);">{{ current_date|date:"d.m.Y" }}</span>
                 <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
                 <form method="post" action="{% url 'logout' %}" style="display: inline;">
                     {% csrf_token %}
@@ -47,6 +47,7 @@
             </div>
             <div>
                 <h2>Информация</h2>
+                <h6>Баланс счета {{ current_date|date:"d.m.Y" }}: {{ balance_value|floatformat:2 }}</h6>
                 <form method="GET" action="{% url 'user_cabinet' %}">
                     <label for="start_date">Доходы с:</label>
                     <input type="date" id="start_date" name="start_date" required>
@@ -54,7 +55,7 @@
                     <input type="date" id="end_date" name="end_date" required>
                     <button type="submit" class="btn btn-custom">Показать</button>
                 </form>
-                {% if total_income %}
+                {% if start_date and end_date %}
                     <p>Сумма доходов с {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
                         составляет {{ total_income }} BYN ({{ total_income_usd }} USD, {{ total_income_eur }}
                         EUR, {{ total_income_rub }} RUB)</p>
@@ -62,24 +63,24 @@
             </div>
         </div>
         <div class="col-md-4">
-<h2>Курсы валют НБ БР на Сегодня</h2>
-<table id="currency-rates" class="table table-striped">
-<thead>
-<tr>
-<th style="background-color: #A78B71; color: #fff;">Валюта</th>
-<th style="background-color: #A78B71; color: #fff;">Курс</th>
-</tr>
-</thead>
-<tbody>
-{% for currency, rate in currency_rates.items %}
-<tr>
-<td>{{ currency }}</td>
-<td>{{ rate }}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
+            <h2>Курсы валют НБ БР на {{ current_date|date:"d.m.Y" }}</h2>
+            <table id="currency-rates" class="table table-striped">
+                <thead>
+                <tr>
+                    <th style="background-color: #A78B71; color: #fff;">Валюта</th>
+                    <th style="background-color: #A78B71; color: #fff;">Курс</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for currency, rate in currency_rates.items %}
+                    <tr>
+                        <td>{{ currency }}</td>
+                        <td>{{ rate }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </main>
 

@@ -6,17 +6,6 @@ from .models import Expense
 from .models import Profile, PlannedExpense, Credit
 
 
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['first_name', 'last_name', 'email']
-        labels = {
-            'first_name': 'Имя',
-            'last_name': 'Фамилия',
-            'email': 'Электронная почта',
-        }
-
-
 class ProfileForm(forms.ModelForm):
     class Meta:
         model = Profile
@@ -25,6 +14,17 @@ class ProfileForm(forms.ModelForm):
             'avatar': 'Аватар',
             'phone': 'Телефон',
             'address': 'Адрес',
+        }
+
+
+class UserForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['first_name', 'last_name', 'email']
+        labels = {
+            'first_name': 'Имя',
+            'last_name': 'Фамилия',
+            'email': 'Электронная почта',
         }
 
 
@@ -54,6 +54,7 @@ class ExpenseForm(forms.ModelForm):
             raise forms.ValidationError('Сумма не может быть отрицательной')
         return amount
 
+
 class CarExpenseForm(forms.ModelForm):
     class Meta:
         model = CarExpense
@@ -75,6 +76,7 @@ class PlannedExpenseForm(forms.ModelForm):
             'item_cost': 'Стоимость покупки',
             'months_to_save': 'Количество месяцев за которые нужно накопить',
         }
+
 
 class CreditForm(forms.ModelForm):
     class Meta:

@@ -42,7 +42,6 @@
                 <div class="profile-container">
                     <div class="avatar-container">
                         <img src="
-                                
                                 {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
                              alt="Аватар" class="avatar mb-3 img-thumbnail">
                         <form method="post" enctype="multipart/form-data" id="upload-avatar-form">

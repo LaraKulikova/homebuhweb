@@ -21,6 +21,7 @@ from .models import Credit
 from .forms import CreditForm
 
 
+
 def homepage(request):
     return render(request, 'homebuhweb/homepage.html')
 
@@ -386,3 +387,7 @@ def delete_credit(request):
         return redirect('add_credit')
 
     return redirect('add_credit')
+
+
+def show_grafics(request):
+    return render(request, 'homebuhweb/diagrams/show_grafics.html')

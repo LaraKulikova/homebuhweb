@@ -72,7 +72,7 @@
                         <a href="{% url 'edit_expense' expense.id %}" class="btn btn-warning">Изменить</a>
                         <a href="{% url 'delete_expense' expense.id %}" class="btn btn-danger">Удалить</a>
                         {% if expense.subsubcategory.id == 71 or expense.subsubcategory.id == 72 %}
-                            <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Ввести пробег и наименование расхода</a>
+                            <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Ввести пробег и примечание</a>
                         {% endif %}
                     </td>
                 </tr>

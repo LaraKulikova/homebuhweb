@@ -446,7 +446,7 @@ def show_grafics(request):
     fig, ax = plt.subplots()
     df.set_index('subsubcategory__name').plot.pie(y='total', ax=ax, autopct='%1.1f%%', startangle=90)
     ax.set_ylabel('')
-    ax.set_title('Процентное отношение расходов по категориям')
+    ax.set_title('Процентное отношение расходов по категориям по отношению к общему расходу')
 
     # Уменьшаем размер шрифта подписей
     plt.setp(ax.get_legend().get_texts(), fontsize='small')

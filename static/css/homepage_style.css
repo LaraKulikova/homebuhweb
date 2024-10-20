@@ -2,7 +2,7 @@
     --primary-color: #583E26;
     --secondary-color: #F3EB6B;
     --hover-color: #f55f5f;
-    --secondary-hover-color: #C2B804;
+    --secondary-hover-color: #f3d3a1;
     --background-color: #A78B71;
     --footer-color: #583E26;
     --footer-text-color: #583E26;
@@ -198,29 +198,26 @@ html, body {
 }
 
 .table-striped {
-background-color: var(--background-color);
-color: var(--primary-color);
-}
+    background-color: var(--background-color);
+    color: var(--primary-color);
+   }
 
-.table-striped th {
-background-color: var(--primary-color);
-color: #fff;
-}
 
 .table-striped td {
-border: 1px solid var(--primary-color);
+    border: 1px solid var(--primary-color);
 }
 
 .table-striped tbody tr:nth-of-type(odd) {
-background-color: var(--secondary-hover-color);
+    background-color: var(--secondary-hover-color);
 }
 
 .table-striped tbody tr:nth-of-type(even) {
-background-color: var(--background-color);
+    background-color: var(--background-color);
 }
 
 .table-striped th {
-background-color: var(--primary-color);
-color: #fff;
-text-align: center; /* Добавлено для выравнивания по центру */
+    background-color: var(--primary-color);
+    color: #fff;
+    text-align: center; /* Добавлено для выравнивания по центру */
 }
+

@@ -1,6 +1,9 @@
+from decimal import Decimal
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, User
 from django.contrib.auth.models import User
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.contrib.auth.models import User
 
@@ -84,7 +87,10 @@ class Income(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     income_type = models.CharField(max_length=100, choices=INCOME_TYPES)
-    amount = models.DecimalField(max_digits=10, decimal_places=2)
+    amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))])
     date = models.DateField()
 
     def __str__(self):
@@ -137,23 +143,42 @@ class CarExpense(models.Model):
     def __str__(self):
         return f"{self.car_brand} - {self.amount}"
 
+
 class PlannedExpense(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     item_name = models.CharField(max_length=255)
     start_date = models.DateField()
-    item_cost = models.DecimalField(max_digits=10, decimal_places=2)
-    months_to_save = models.IntegerField()
-    monthly_amount = models.DecimalField(max_digits=10, decimal_places=2, blank=True, null=True)
+
+    item_cost = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        validators=[MinValueValidator(Decimal('0.01'))]
+    )
+
+    months_to_save = models.IntegerField(
+        validators=[MinValueValidator(1)]
+    )
+
+    monthly_amount = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        blank=True,
+        null=True
+    )
 
     def calculate_monthly_amount(self):
         if self.months_to_save > 0:
-            self.monthly_amount = self.item_cost / self.months_to_save
-        else:
-            self.monthly_amount = 0
-        self.save()
+            return self.item_cost / self.months_to_save
+        return Decimal('0.00')
+
+    def save(self, *args, **kwargs):
+        self.monthly_amount = self.calculate_monthly_amount()
+        super().save(*args, **kwargs)
 
     def __str__(self):
-        return self.item_name
+        return f"{self.item_name} - {self.item_cost}"
+
+
 class Credit(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     credit_name = models.CharField(max_length=255)
@@ -164,3 +189,15 @@ class Credit(models.Model):
 
     def __str__(self):
         return self.credit_name
+
+    @property
+    def principal_amount(self):
+        return Decimal(self.credit_amount) / Decimal(self.credit_term)
+
+    @property
+    def monthly_interest(self):
+        return (Decimal(self.credit_amount) * (self.interest_rate / Decimal(100))) / Decimal(12)
+
+    @property
+    def monthly_payment(self):
+        return self.principal_amount + self.monthly_interest

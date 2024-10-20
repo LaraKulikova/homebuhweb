@@ -325,12 +325,27 @@ def add_credit(request):
             credit = form.save(commit=False)
             credit.user = request.user
             credit.save()
-            return redirect('add_credit')
+
+            # Выполнение расчетов
+            principal_amount = credit.principal_amount
+            monthly_interest = credit.monthly_interest
+            monthly_payment = credit.monthly_payment
+
+            # Вывод результатов расчетов
+            return render(request, 'homebuhweb/credit/add_credit.html', {
+                'form': form,
+                'credits': Credit.objects.filter(user=request.user),
+                'credit': None,
+                'principal_amount': principal_amount,
+                'monthly_interest': monthly_interest,
+                'monthly_payment': monthly_payment,
+            })
     else:
         form = CreditForm()
 
     credits = Credit.objects.filter(user=request.user)
-    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits})
+
+    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits, 'credit': None})
 
 
 def edit_credit(request, pk):
@@ -338,21 +353,35 @@ def edit_credit(request, pk):
 
     if request.method == 'POST':
         form = CreditForm(request.POST, instance=credit)
-
         if form.is_valid():
             form.save()
-            return redirect('add_credit')
+
+            # Выполнение расчетов
+            principal_amount = credit.principal_amount
+            monthly_interest = credit.monthly_interest
+            monthly_payment = credit.monthly_payment
+
+            # Вывод результатов расчетов
+            return render(request, 'homebuhweb/credit/add_credit.html', {
+                'form': form,
+                'credits': Credit.objects.filter(user=request.user),
+                'credit': credit,
+                'principal_amount': principal_amount,
+                'monthly_interest': monthly_interest,
+                'monthly_payment': monthly_payment,
+            })
     else:
         form = CreditForm(instance=credit)
 
     credits = Credit.objects.filter(user=request.user)
-    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits})
+
+    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits, 'credit': credit})
 
 
-def delete_credit(request, pk):
-    credit = get_object_or_404(Credit, pk=pk, user=request.user)
-
+def delete_credit(request):
     if request.method == 'POST':
+        credit_id = request.POST.get('credit_id')
+        credit = get_object_or_404(Credit, id=credit_id, user=request.user)
         credit.delete()
         return redirect('add_credit')
 

@@ -36,7 +36,7 @@
             <div class="mb-3">
                 <label for="id_amount" class="form-label">Сумма:</label>
                 <input type="number" name="amount" class="form-control" id="id_amount"
-                       value="{% if expense %}{{ expense.amount }}{% endif %}" required>
+                       value="{% if expense %}{{ expense.amount }}{% endif %}" min="0" step="0.01" required>
             </div>
             <!-- Поле для выбора даты -->
             <div class="mb-3">

@@ -2,31 +2,36 @@
 {% load static %}
 {% block content %}
     <div class="container mt-5">
-        <h2 class="text-center mb-4">Добавить кредит/рассрочку</h2>
+        <h2 class="text-center mb-4">{% if credit %}Изменить кредит/рассрочку{% else %}Добавить
+            кредит/рассрочку{% endif %}</h2>
         <form method="post" class="mx-auto" style="max-width: 600px;">
             {% csrf_token %}
             <div class="mb-3">
                 <label for="id_credit_name" class="form-label">Наименование кредита/рассрочки</label>
-                {{ form.credit_name }}
+                <input type="text" name="credit_name" id="id_credit_name" class="form-control"
+                       value="{{ credit.credit_name }}" required>
             </div>
             <div class="mb-3">
                 <label for="id_credit_amount" class="form-label">Сумма кредита/рассрочки</label>
-                {{ form.credit_amount }}
+                <input type="number" name="credit_amount" id="id_credit_amount" class="form-control" min="0" step="0.01"
+                       value="{{ credit.credit_amount }}" required>
             </div>
             <div class="mb-3">
                 <label for="id_credit_term" class="form-label">Срок кредита/рассрочки (в месяцах)</label>
-                {{ form.credit_term }}
+                <input type="number" name="credit_term" id="id_credit_term" class="form-control" min="0"
+                       value="{{ credit.credit_term }}" required>
             </div>
             <div class="mb-3">
                 <label for="id_interest_rate" class="form-label">Процентная ставка</label>
-                {{ form.interest_rate }}
+                <input type="number" name="interest_rate" id="id_interest_rate" class="form-control" min="0" step="0.01"
+                       value="{{ credit.interest_rate }}" required>
             </div>
             <div class="mb-3">
                 <label for="id_issue_date" class="form-label">Дата выдачи</label>
-                {{ form.issue_date }}
+                <input type="date" name="issue_date" id="id_issue_date" class="form-control"
+                       value="{{ credit.issue_date }}" required>
             </div>
-            <button type="button" class="btn btn-custom my-2" onclick="calculatePayments()">Рассчитать</button>
-            <button type="submit" class="btn btn-custom my-2">Сохранить</button>
+            <button type="submit" class="btn btn-custom my-2">Рассчитать и сохранить</button>
             <a href="{% url 'user_cabinet' %}" class="btn btn-custom my-2">Вернуться в личный кабинет</a>
         </form>
         <div id="calculation-results" class="mt-4" style="display: none;">
@@ -39,7 +44,7 @@
 
     <div class="container mt-5">
         <h2 class="text-center mb-4">Сохраненные кредиты/рассрочки</h2>
-        <table class="table table-striped">
+        <table class="table table-striped text-center">
             <thead>
             <tr>
                 <th>Наименование</th>
@@ -88,8 +93,9 @@
                     <p>Вы уверены, что хотите удалить кредит/рассрочку "<span id="modal-credit-name"></span>"?</p>
                 </div>
                 <div class="modal-footer">
-                    <form method="post" id="delete-form">
+                    <form method="post" action="{% url 'delete_credit' %}" id="delete-form">
                         {% csrf_token %}
+                        <input type="hidden" name="credit_id" id="modal-credit-id">
                         <button type="submit" class="btn btn-danger">Удалить</button>
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
                     </form>
@@ -97,6 +103,21 @@
             </div>
         </div>
     </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var creditId = button.getAttribute('data-credit-id');
+                var creditName = button.getAttribute('data-credit-name');
+                var modalCreditName = deleteModal.querySelector('#modal-credit-name');
+                var modalCreditId = deleteModal.querySelector('#modal-credit-id');
+                modalCreditName.textContent = creditName;
+                modalCreditId.value = creditId;
+            });
+        });
+    </script>
 
     <script src="{% static 'js/homepage_script.js' %}"></script>
 {% endblock %}

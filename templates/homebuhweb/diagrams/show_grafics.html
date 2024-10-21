@@ -27,8 +27,20 @@
 <main class="container py-5 main-custom">
     <div class="row">
         <div class="col-md-12">
+            <a href="/user_cabinet/" class="btn btn-custom my-2">Вернуться в личный кабинет</a>
             <h2>Отчетные графики</h2>
-            <img src="data:image/png;base64,{{ data }}" alt="Процентное отношение расходов по категориям">
+            <h3>Расходы</h3>
+            {% if message_expenses %}
+                <p>{{ message_expenses }}</p>
+            {% else %}
+                <img src="data:image/png;base64,{{ data_expenses }}" alt="График расходов">
+            {% endif %}
+            <h3>Доходы</h3>
+            {% if message_incomes %}
+                <p>{{ message_incomes }}</p>
+            {% else %}
+                <img src="data:image/png;base64,{{ data_incomes }}" alt="График доходов">
+            {% endif %}
         </div>
     </div>
 </main>

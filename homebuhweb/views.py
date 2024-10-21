@@ -30,6 +30,7 @@ from .models import Credit
 from .models import Expense
 from .models import Income, Profile
 from .models import PlannedExpense
+import textwrap
 
 
 def homepage(request):
@@ -424,43 +425,91 @@ def delete_credit(request):
 
 @login_required
 def show_grafics(request):
-    # Получаем дату три месяца назад
+    # Получаем дату три месяца назад для расходов
     three_months_ago = date.today() - timedelta(days=90)
+    # Получаем дату шесть месяцев назад для доходов
+    six_months_ago = date.today() - timedelta(days=180)
 
     # Получаем расходы за последние три месяца
     expenses = Expense.objects.filter(user=request.user, date__gte=three_months_ago)
+    # Получаем доходы за последние шесть месяцев
+    incomes = Income.objects.filter(user=request.user, date__gte=six_months_ago)
 
-    # Группируем расходы по подподкатегориям и суммируем их
-    expenses_by_subsubcategory = expenses.values('subsubcategory__name').annotate(total=Sum('amount'))
+    context = {}
 
-    # Преобразуем данные в DataFrame
-    df = pd.DataFrame(list(expenses_by_subsubcategory))
+    # Проверка наличия расходов
+    if expenses.exists():
+        # Группируем расходы по подподкатегориям и суммируем их
+        expenses_by_subsubcategory = expenses.values('subsubcategory__name').annotate(total=Sum('amount'))
+        # Преобразуем данные в DataFrame
+        df_expenses = pd.DataFrame(list(expenses_by_subsubcategory))
+        # Убедитесь, что столбец 'total' является числовым
+        df_expenses['total'] = pd.to_numeric(df_expenses['total'], errors='coerce')
+        # Создаем круговой график для расходов
+        fig_expenses, ax_expenses = plt.subplots()
+        wedges, texts, autotexts = ax_expenses.pie(
+            df_expenses['total'],
+            labels=df_expenses['subsubcategory__name'],
+            autopct='%1.1f%%',
+            startangle=90,
+            textprops={'fontsize': 8}
+        )
+        ax_expenses.set_ylabel('')
+        # Вручную вставляем символы новой строки и уменьшаем размер шрифта заголовка
+        title_expenses = 'Процентное отношение расходов\nпо категориям по отношению\nк общему расходу'
+        ax_expenses.set_title(title_expenses, fontsize=10)
+        # Уменьшаем размер шрифта подписей
+        plt.setp(autotexts, size=8, weight="bold")
+        # Перенос длинных надписей
+        for text in texts:
+            text.set_text(textwrap.fill(text.get_text(), width=10))
+        # Сохраняем график в буфер
+        buf_expenses = io.BytesIO()
+        plt.savefig(buf_expenses, format='png')
+        buf_expenses.seek(0)
+        string_expenses = base64.b64encode(buf_expenses.read())
+        uri_expenses = urllib.parse.quote(string_expenses)
+        context['data_expenses'] = uri_expenses
+    else:
+        context['message_expenses'] = 'У Вас пока нет расходов'
 
-    # Проверка данных
-    print(df)
-
-    # Убедитесь, что столбец 'total' является числовым
-    df['total'] = pd.to_numeric(df['total'], errors='coerce')
-
-    # Создаем круговой график
-    fig, ax = plt.subplots()
-    df.set_index('subsubcategory__name').plot.pie(y='total', ax=ax, autopct='%1.1f%%', startangle=90)
-    ax.set_ylabel('')
-    ax.set_title('Процентное отношение расходов по категориям по отношению к общему расходу')
-
-    # Уменьшаем размер шрифта подписей
-    plt.setp(ax.get_legend().get_texts(), fontsize='small')
-
-    # Сохраняем график в буфер
-    buf = io.BytesIO()
-    plt.savefig(buf, format='png')
-    buf.seek(0)
-    string = base64.b64encode(buf.read())
-    uri = urllib.parse.quote(string)
-
-    context = {
-        'data': uri,
-    }
+    # Проверка наличия доходов
+    if incomes.exists():
+        # Группируем доходы по типам и суммируем их
+        incomes_by_type = incomes.values('income_type').annotate(total=Sum('amount'))
+        # Преобразуем данные в DataFrame
+        df_incomes = pd.DataFrame(list(incomes_by_type))
+        # Убедитесь, что столбец 'total' является числовым
+        df_incomes['total'] = pd.to_numeric(df_incomes['total'], errors='coerce')
+        # Создаем круговой график для доходов
+        fig_incomes, ax_incomes = plt.subplots()
+        wedges, texts, autotexts = ax_incomes.pie(
+            df_incomes['total'],
+            labels=df_incomes['income_type'],
+            autopct='%1.1f%%',
+            startangle=90,
+            textprops={'fontsize': 8}
+        )
+        ax_incomes.set_ylabel('')
+        # Вручную вставляем символы новой строки и уменьшаем размер шрифта заголовка
+        title_incomes = 'Процентное отношение доходов\nпо категориям по отношению\nк общему доходу'
+        ax_incomes.set_title(title_incomes, fontsize=10)
+        # Уменьшаем размер шрифта подписей
+        plt.setp(autotexts, size=8, weight="bold")
+        # Перенос длинных надписей
+        for text in texts:
+            text.set_text(textwrap.fill(text.get_text(), width=10))
+        # Сохраняем график в буфер
+        buf_incomes = io.BytesIO()
+        plt.savefig(buf_incomes, format='png')
+        buf_incomes.seek(0)
+        string_incomes = base64.b64encode(buf_incomes.read())
+        uri_incomes = urllib.parse.quote(string_incomes)
+        context['data_incomes'] = uri_incomes
+    else:
+        context['message_incomes'] = 'У Вас пока нет доходов'
 
     return render(request, 'homebuhweb/diagrams/show_grafics.html', context)
+
+
 

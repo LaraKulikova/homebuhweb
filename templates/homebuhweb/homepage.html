@@ -4,9 +4,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="">
-    <meta name="author" content="Mark Otto, Jacob Thornton, and Bootstrap contributors">
-    <meta name="generator" content="Hugo 0.84.0">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Приложение для учета личных финансов Домашняя бухгалтерия">
     <title>ДОМАШНЯЯ БУХГАЛТЕРИЯ</title>
 
     <link rel="canonical" href="https://getbootstrap.com/docs/5.0/examples/album/">
@@ -60,6 +60,13 @@
                     </p>
                     <p>Для того, чтобы начать использовать приложение нажмите кнопку "Регистрация". Если у вас уже есть
                         аккаунт, нажмите кнопку "Вход".</p>
+                    {% if messages %}
+                        <div class="container mt-3">
+                            {% for message in messages %}
+                                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <p>
                         <button class="btn btn-custom my-2" data-bs-toggle="modal" data-bs-target="#loginModal">Вход
                         </button>
@@ -95,6 +102,18 @@
                         <i class="fa fa-lock"></i>
                         <a href="#" class="fa fa-question-circle"></a>
                     </div>
+                    {% if form.errors %}
+                        <div class="alert alert-danger">
+                            {% for field in form %}
+                                {% for error in field.errors %}
+                                    <p>{{ error }}</p>
+                                {% endfor %}
+                            {% endfor %}
+                            {% for error in form.non_field_errors %}
+                                <p>{{ error }}</p>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
                     <div class="modal-footer">
                         <button type="button" class="btn btn-custom" data-bs-dismiss="modal">Отмена</button>
                         <button type="submit" class="btn btn-secondary-custom">Войти</button>

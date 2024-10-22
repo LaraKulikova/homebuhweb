@@ -6,7 +6,7 @@ import urllib.parse
 from datetime import date, timedelta
 from datetime import datetime
 from decimal import Decimal, ROUND_HALF_UP
-
+from django.contrib import messages
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
@@ -58,9 +58,12 @@ def login_view(request):
             user = form.get_user()
             login(request, user)
             return redirect('user_cabinet')
+        else:
+            messages.error(request, "Такого пользователя не существует или неверный пароль.")
+            return redirect('homepage')
     else:
         form = AuthenticationForm()
-    return redirect('homepage')
+        return render(request, 'homebuhweb/homepage.html', {'form': form})
 
 
 def calculate_balance(user):

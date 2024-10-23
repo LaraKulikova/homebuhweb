@@ -117,6 +117,11 @@ def user_cabinet(request):
         total_income_eur = (total_income / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'),
                                                                                  rounding=ROUND_HALF_UP)
+    expenses = PlannedExpense.objects.filter(user=request.user)
+    total_monthly_amount = Decimal('0.00')
+    for expense in expenses:
+        total_monthly_amount += expense.calculate_monthly_amount()
+    total_monthly_amount = total_monthly_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     return render(request, 'homebuhweb/login/usercabinet.html', {
         'start_date': start_date,
@@ -126,6 +131,7 @@ def user_cabinet(request):
         'total_income_eur': total_income_eur,
         'total_income_rub': total_income_rub,
         'total_expenses': total_expenses,
+        'total_monthly_amount': total_monthly_amount,
         'balance': balance,
         'balance_value': balance,
         'user_form': user_form,
@@ -317,8 +323,13 @@ def add_car_expense(request, expense_id):
 
 def plan_expenses(request):
     expenses = PlannedExpense.objects.filter(user=request.user)
-    return render(request, 'homebuhweb/expenses/plan_expenses.html', {'expenses': expenses})
-
+    total_monthly_amount = Decimal('0.00')
+    for expense in expenses:
+        total_monthly_amount += expense.calculate_monthly_amount()
+        total_monthly_amount = total_monthly_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    return render(request, 'homebuhweb/expenses/plan_expenses.html', {
+                    'expenses': expenses,
+                    'total_monthly_amount': total_monthly_amount })
 
 def add_planned_expense(request):
     if request.method == 'POST':

@@ -76,9 +76,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
             });
     });
-});
 
-document.addEventListener('DOMContentLoaded', function () {
     fetch('/api/currency-rates/')
         .then(response => response.json())
         .then(data => {
@@ -91,19 +89,57 @@ document.addEventListener('DOMContentLoaded', function () {
             }
         })
         .catch(error => console.error('Error fetching currency rates:', error));
-});
 
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function (event) {
+        event.preventDefault();
+        calculateAndSave();
+    });
 
-function calculatePayments() {
-    const creditAmount = parseFloat(document.getElementById('id_credit_amount').value);
-    const creditTerm = parseInt(document.getElementById('id_credit_term').value);
-    const interestRate = parseFloat(document.getElementById('id_interest_rate').value) / 100 / 12; // Предполагаем, что процентная ставка вводится в годовых процентах
+    function calculateAndSave() {
+        const creditAmount = parseFloat(document.getElementById('id_credit_amount').value);
+        const interestRate = parseFloat(document.getElementById('id_interest_rate').value) / 100;
+        const creditTerm = parseInt(document.getElementById('id_credit_term').value);
 
-    if (isNaN(creditAmount) || isNaN(creditTerm) || isNaN(interestRate)) {
-        alert('Пожалуйста, введите корректные значения для суммы кредита, срока и процентной ставки.');
-        return;
+        if (isNaN(creditAmount) || isNaN(interestRate) || isNaN(creditTerm)) {
+            alert('Пожалуйста, введите корректные значения для суммы кредита, срока и процентной ставки.');
+            return;
+        }
+
+        const monthlyInterest = (creditAmount * interestRate) / 12;
+        const monthlyPayment = (creditAmount / creditTerm) + monthlyInterest;
+
+// Обновление суммы всех платежей в месяц
+        let totalMonthlyPayments = parseFloat(document.querySelector('h6').textContent.match(/[\d.]+/)[0]);
+        totalMonthlyPayments += monthlyPayment;
+
+        document.querySelector('h6').textContent = 'Сумма всех платежей в месяц (приблизительно): ' + totalMonthlyPayments.toFixed(2);
+
+// Асинхронный запрос для обновления данных на сервере
+        fetch('/update_total_monthly_payments/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({total_monthly_payments: totalMonthlyPayments.toFixed(2)})
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сети');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    form.submit();
+                } else {
+                    alert('Ошибка при обновлении суммы всех платежей.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при обновлении суммы всех платежей. Пожалуйста, попробуйте позже.');
+            });
     }
-
-    const monthlyPayment = (creditAmount * interestRate) / (1 - Math.pow(1 + interestRate, -creditTerm));
-    document.getElementById('monthly_payment').textContent = `Ежемесячный платеж: ${monthlyPayment.toFixed(2)} руб.`;
-}
+});

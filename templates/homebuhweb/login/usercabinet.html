@@ -2,94 +2,96 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ДОМАШНЯЯ БУХГАЛТЕРИЯ</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
-<link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ДОМАШНЯЯ БУХГАЛТЕРИЯ</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
 </head>
 <body style="background-color: #A78B71; margin: 0; padding: 0; height: 100%; width: 100%;">
 <header>
-<div class="navbar navbar-custom shadow-sm">
-<div class="container d-flex justify-content-between align-items-center">
-<a href="#" class="navbar-brand d-flex align-items-center">
-<img src="{% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
-width="40" height="40" alt="favicon" class="me-2">
-<strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
-ПОЛЬЗОВАТЕЛЯ</strong>
-<span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
-</a>
-<div>
+    <div class="navbar navbar-custom shadow-sm">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a href="#" class="navbar-brand d-flex align-items-center">
+                <img src="
+                        {% if user.profile.avatar %}{{ user.profile.avatar.url }}{% else %}{% static 'images/apple-touch-icon.png' %}{% endif %}"
+                     width="40" height="40" alt="favicon" class="me-2">
+                <strong style="color: var(--secondary-color); font-family: 'Duality Regular', sans-serif; font-size: 24px;">КАБИНЕТ
+                    ПОЛЬЗОВАТЕЛЯ</strong>
+                <span style="margin-left: 20px; font-size: 24px; color: var(--secondary-color);">{{ user.get_full_name|default:user.username }}</span>
+            </a>
+            <div>
 <span id="current-date"
-style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);">{{ current_date|date:"d.m.Y" }}</span>
-<a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
-<form method="post" action="{% url 'logout' %}" style="display: inline;">
-{% csrf_token %}
-<button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
-</form>
-</div>
-</div>
-</div>
+      style="margin-right: 20px; font-size: 16px; color: var(--secondary-color);">{{ current_date|date:"d.m.Y" }}</span>
+                <a href="{% url 'user_prof' %}" class="btn btn-custom me-2">Редактировать профиль пользователя</a>
+                <form method="post" action="{% url 'logout' %}" style="display: inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-custom">Выход из личного кабинета</button>
+                </form>
+            </div>
+        </div>
+    </div>
 </header>
 
 <main class="container py-5 main-custom">
-<div class="row">
-<div class="col-md-8">
-<div class="mb-4">
-<h2>Действия</h2>
-<a href="{% url 'add_income' %}" class="btn btn-custom my-2">Добавить доход</a>
-<a href="{% url 'add_expense' %}" class="btn btn-custom my-2">Добавить расход</a>
-<a href="{% url 'plan_expenses' %}" class="btn btn-custom my-2">Добавить плановый расход</a>
-<a href="{% url 'add_credit' %}" class="btn btn-custom my-2">Добавить кредит/рассрочку</a>
-<a href="{% url 'show_grafics' %}" class="btn btn-custom my-2">Просмотреть графики</a>
-</div>
-<div>
-<h2>Информация</h2>
-<h6>Баланс счета {{ current_date|date:"d.m.Y" }}: {{ balance_value|floatformat:2 }}</h6>
-<h6>Сумма планируемых расходов в месяц: {{ total_monthly_amount }}</h6>
-<form method="GET" action="{% url 'user_cabinet' %}">
-<label for="start_date">Доходы с:</label>
-<input type="date" id="start_date" name="start_date" required>
-<label for="end_date">по:</label>
-<input type="date" id="end_date" name="end_date" required>
-<button type="submit" class="btn btn-custom">Показать</button>
-</form>
-{% if start_date and end_date %}
-<p>Сумма доходов с {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
-составляет {{ total_income }} BYN ({{ total_income_usd }} USD, {{ total_income_eur }}
-EUR, {{ total_income_rub }} RUB)</p>
-{% endif %}
-</div>
-</div>
-<div class="col-md-4">
-<h2>Курсы валют НБ БР на {{ current_date|date:"d.m.Y" }}</h2>
-<table id="currency-rates" class="table table-striped">
-<thead>
-<tr>
-<th style="background-color: #A78B71; color: #fff;">Валюта</th>
-<th style="background-color: #A78B71; color: #fff;">Курс</th>
-</tr>
-</thead>
-<tbody>
-{% for currency, rate in currency_rates.items %}
-<tr>
-<td>{{ currency }}</td>
-<td>{{ rate }}</td>
-</tr>
-{% endfor %}
-</tbody>
-</table>
-</div>
-</div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="mb-4">
+                <h2>Действия</h2>
+                <a href="{% url 'add_income' %}" class="btn btn-custom my-2">Добавить доход</a>
+                <a href="{% url 'add_expense' %}" class="btn btn-custom my-2">Добавить расход</a>
+                <a href="{% url 'plan_expenses' %}" class="btn btn-custom my-2">Добавить плановый расход</a>
+                <a href="{% url 'add_credit' %}" class="btn btn-custom my-2">Добавить кредит/рассрочку</a>
+                <a href="{% url 'show_grafics' %}" class="btn btn-custom my-2">Просмотреть графики</a>
+            </div>
+            <div>
+                <h2>Информация</h2>
+                <h6>Баланс счета {{ current_date|date:"d.m.Y" }}: {{ balance_value|floatformat:2 }}</h6>
+                <h6>Сумма планируемых расходов в месяц: {{ total_monthly_amount }}</h6>
+                <h6>Примерная сумма платежей по кредитам в месяц: {{ total_monthly_payments|floatformat:2 }}</h6>
+                <form method="GET" action="{% url 'user_cabinet' %}">
+                    <label for="start_date">Доходы с:</label>
+                    <input type="date" id="start_date" name="start_date" required>
+                    <label for="end_date">по:</label>
+                    <input type="date" id="end_date" name="end_date" required>
+                    <button type="submit" class="btn btn-custom">Показать</button>
+                </form>
+                {% if start_date and end_date %}
+                    <p>Сумма доходов с {{ start_date|date:"d.m.Y" }} по {{ end_date|date:"d.m.Y" }}
+                        составляет {{ total_income }} BYN ({{ total_income_usd }} USD, {{ total_income_eur }}
+                        EUR, {{ total_income_rub }} RUB)</p>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-md-4">
+            <h2>Курсы валют НБ БР на {{ current_date|date:"d.m.Y" }}</h2>
+            <table id="currency-rates" class="table table-striped">
+                <thead>
+                <tr>
+                    <th style="background-color: #A78B71; color: #fff;">Валюта</th>
+                    <th style="background-color: #A78B71; color: #fff;">Курс</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for currency, rate in currency_rates.items %}
+                    <tr>
+                        <td>{{ currency }}</td>
+                        <td>{{ rate }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 </main>
 
 <footer class="footer-custom text-muted py-5">
-<div class="container">
-<p class="float-end mb-1">
-<a href="#">Наверх</a>
-</p>
-<p class="mb-1">Домашняя бухгалтерия, 2024</p>
-</div>
+    <div class="container">
+        <p class="float-end mb-1">
+            <a href="#">Наверх</a>
+        </p>
+        <p class="mb-1">Домашняя бухгалтерия, 2024</p>
+    </div>
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

@@ -84,7 +84,8 @@ def user_cabinet(request):
     total_income_usd = Decimal('0.00')
     total_income_eur = Decimal('0.00')
     total_income_rub = Decimal('0.00')
-
+    credits = Credit.objects.filter(user=request.user)
+    total_monthly_payments = sum(credit.monthly_payment for credit in credits)
     total_income, total_expenses, balance = calculate_balance(request.user)
 
     user = request.user
@@ -132,6 +133,7 @@ def user_cabinet(request):
         'total_income_rub': total_income_rub,
         'total_expenses': total_expenses,
         'total_monthly_amount': total_monthly_amount,
+        'total_monthly_payments': total_monthly_payments,
         'balance': balance,
         'balance_value': balance,
         'user_form': user_form,
@@ -368,34 +370,43 @@ def delete_planned_expense(request, pk):
 
 
 def add_credit(request):
-    if request.method == 'POST':
-        form = CreditForm(request.POST)
-        if form.is_valid():
-            credit = form.save(commit=False)
-            credit.user = request.user
-            credit.save()
+    form = CreditForm(request.POST or None)
+    if request.method == 'POST' and form.is_valid():
+        credit = form.save(commit=False)
+        credit.user = request.user
+        credit.save()
 
-            # Выполнение расчетов
-            principal_amount = credit.principal_amount
-            monthly_interest = credit.monthly_interest
-            monthly_payment = credit.monthly_payment
+        # Выполнение расчетов
+        principal_amount = credit.principal_amount
+        monthly_interest = credit.monthly_interest
+        monthly_payment = credit.monthly_payment
 
-            # Вывод результатов расчетов
-            return render(request, 'homebuhweb/credit/add_credit.html', {
-                'form': form,
-                'credits': Credit.objects.filter(user=request.user),
-                'credit': None,
-                'principal_amount': principal_amount,
-                'monthly_interest': monthly_interest,
-                'monthly_payment': monthly_payment,
-            })
-    else:
-        form = CreditForm()
+        # Обновление суммы всех платежей в месяц
+        credits = Credit.objects.filter(user=request.user)
+        total_monthly_payments = sum(credit.monthly_payment for credit in credits)
+
+        # Вывод результатов расчетов
+        return render(request, 'homebuhweb/credit/add_credit.html', {
+            'form': form,
+            'credits': credits,
+            'credit': credit, # Передаем созданный кредит
+            'principal_amount': principal_amount,
+            'monthly_interest': monthly_interest,
+            'monthly_payment': monthly_payment,
+            'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
+        })
 
     credits = Credit.objects.filter(user=request.user)
 
-    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits, 'credit': None})
+    # Вычисление суммы всех платежей в месяц
+    total_monthly_payments = sum(credit.monthly_payment for credit in credits)
 
+    return render(request, 'homebuhweb/credit/add_credit.html', {
+        'form': form,
+        'credits': credits,
+        'credit': None, # Передаем None, если кредит не создан
+        'total_monthly_payments': total_monthly_payments,
+    })
 
 def edit_credit(request, pk):
     credit = get_object_or_404(Credit, pk=pk, user=request.user)
@@ -410,21 +421,34 @@ def edit_credit(request, pk):
             monthly_interest = credit.monthly_interest
             monthly_payment = credit.monthly_payment
 
+            # Обновление суммы всех платежей в месяц
+            credits = Credit.objects.filter(user=request.user)
+            total_monthly_payments = sum(credit.monthly_payment for credit in credits)
+
             # Вывод результатов расчетов
             return render(request, 'homebuhweb/credit/add_credit.html', {
                 'form': form,
-                'credits': Credit.objects.filter(user=request.user),
+                'credits': credits,
                 'credit': credit,
                 'principal_amount': principal_amount,
                 'monthly_interest': monthly_interest,
                 'monthly_payment': monthly_payment,
+                'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
             })
-    else:
-        form = CreditForm(instance=credit)
+        else:
+            form = CreditForm(instance=credit)
 
-    credits = Credit.objects.filter(user=request.user)
+        credits = Credit.objects.filter(user=request.user)
 
-    return render(request, 'homebuhweb/credit/add_credit.html', {'form': form, 'credits': credits, 'credit': credit})
+        # Вычисление суммы всех платежей в месяц
+        total_monthly_payments = sum(credit.monthly_payment for credit in credits)
+
+        return render(request, 'homebuhweb/credit/add_credit.html', {
+            'form': form,
+            'credits': credits,
+            'credit': credit,
+            'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
+        })
 
 
 def delete_credit(request):

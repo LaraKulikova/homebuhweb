@@ -38,12 +38,13 @@
             <h4>Результаты расчета</h4>
             <p>Сумма по основному долгу: <span id="principal-amount"></span></p>
             <p>Сумма процентов в месяц: <span id="monthly-interest"></span></p>
-            <p>Общая сумма платежа в месяц: <span id="monthly-payment"></span></p>
+            <p>Общая сумма платежа в месяц: <span id="monthly_payment"></span></p>
         </div>
     </div>
 
     <div class="container mt-5">
         <h2 class="text-center mb-4">Сохраненные кредиты/рассрочки</h2>
+        <h6>Сумма всех платежей в месяц (приблизительно): {{ total_monthly_payments|floatformat:2 }}</h6>
         <table class="table table-striped text-center">
             <thead>
             <tr>

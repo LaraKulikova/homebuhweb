@@ -77,6 +77,7 @@ def calculate_balance(user):
     return total_income, total_expenses, balance
 
 
+@login_required
 def user_cabinet(request):
     start_date = request.GET.get('start_date')
     end_date = request.GET.get('end_date')
@@ -91,6 +92,10 @@ def user_cabinet(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
 
+    # Инициализация форм
+    user_form = UserForm(instance=user)
+    profile_form = ProfileForm(instance=profile)
+
     if request.method == 'POST':
         user_form = UserForm(request.POST, instance=user)
         profile_form = ProfileForm(request.POST, request.FILES, instance=profile)
@@ -98,9 +103,11 @@ def user_cabinet(request):
         if user_form.is_valid() and profile_form.is_valid():
             user_form.save()
             profile_form.save()
-    else:
-        user_form = UserForm(instance=user)
-        profile_form = ProfileForm(instance=profile)
+
+    # Инициализация курсов валют по умолчанию
+    usd_rate = Decimal('1')
+    eur_rate = Decimal('1')
+    rub_rate = Decimal('1')
 
     if start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
@@ -108,21 +115,28 @@ def user_cabinet(request):
         incomes = Income.objects.filter(user=request.user, date__range=[start_date, end_date])
         total_income = sum(income.amount for income in incomes)
 
-        # Получение курсов валют
-        currency_rates = get_currency_rates(request)
-        usd_rate = currency_rates.get('USD', Decimal('1'))
-        eur_rate = currency_rates.get('EUR', Decimal('1'))
-        rub_rate = currency_rates.get('RUB', Decimal('1'))
+        # Получение актуальных курсов валют
+        currency_rates = get_currency_rates()
+        if 'error' not in currency_rates:
+            usd_rate = currency_rates.get('USD', Decimal('1'))
+            eur_rate = currency_rates.get('EUR', Decimal('1'))
+            rub_rate = currency_rates.get('RUB', Decimal('1'))
 
+        # Перевод дохода в разные валюты
         total_income_usd = (total_income / usd_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
         total_income_eur = (total_income / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'),
-                                                                                 rounding=ROUND_HALF_UP)
+        total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
     expenses = PlannedExpense.objects.filter(user=request.user)
     total_monthly_amount = Decimal('0.00')
     for expense in expenses:
         total_monthly_amount += expense.calculate_monthly_amount()
     total_monthly_amount = total_monthly_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    # Рассчет суммы платежей по кредитам в различных валютах
+    total_monthly_payments_usd = (total_monthly_payments / usd_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    total_monthly_payments_eur = (total_monthly_payments / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    total_monthly_payments_rub = (total_monthly_payments / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     return render(request, 'homebuhweb/login/usercabinet.html', {
         'start_date': start_date,
@@ -134,6 +148,9 @@ def user_cabinet(request):
         'total_expenses': total_expenses,
         'total_monthly_amount': total_monthly_amount,
         'total_monthly_payments': total_monthly_payments,
+        'total_monthly_payments_usd': total_monthly_payments_usd,
+        'total_monthly_payments_eur': total_monthly_payments_eur,
+        'total_monthly_payments_rub': total_monthly_payments_rub,
         'balance': balance,
         'balance_value': balance,
         'user_form': user_form,
@@ -141,6 +158,32 @@ def user_cabinet(request):
         'avatar_url': profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png'),
         'username': user.get_full_name() or user.username,
     })
+
+
+def get_currency_rates():
+    url = 'https://www.nbrb.by/api/exrates/rates?periodicity=0'
+    try:
+        response = requests.get(url)
+        response.raise_for_status()
+        data = response.json()
+
+        rates = {}
+        currencies = ['USD', 'EUR', 'RUB']
+        for rate in data:
+            if rate['Cur_Abbreviation'] in currencies:
+                rates[rate['Cur_Abbreviation']] = Decimal(str(rate['Cur_OfficialRate']))
+
+        return rates
+    except requests.exceptions.RequestException as e:
+        return {'error': 'Ошибка при получении данных от API: ' + str(e)}
+    except ValueError as e:
+        return {'error': 'Ошибка обработки данных: ' + str(e)}
+
+
+@login_required
+def get_currency_rates_view(request):
+    rates = get_currency_rates()
+    return JsonResponse(rates)
 
 
 @login_required
@@ -207,20 +250,6 @@ def delete_income(request, id):
     income = get_object_or_404(Income, id=id)
     income.delete()
     return redirect('add_income')
-
-
-def get_currency_rates(request):
-    url = 'https://www.nbrb.by/api/exrates/rates?periodicity=0'
-    response = requests.get(url)
-    data = response.json()
-
-    rates = {}
-    currencies = ['USD', 'EUR', 'RUB']
-    for rate in data:
-        if rate['Cur_Abbreviation'] in currencies:
-            rates[rate['Cur_Abbreviation']] = Decimal(str(rate['Cur_OfficialRate']))
-
-    return JsonResponse(rates)
 
 
 @login_required
@@ -330,8 +359,9 @@ def plan_expenses(request):
         total_monthly_amount += expense.calculate_monthly_amount()
         total_monthly_amount = total_monthly_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
     return render(request, 'homebuhweb/expenses/plan_expenses.html', {
-                    'expenses': expenses,
-                    'total_monthly_amount': total_monthly_amount })
+        'expenses': expenses,
+        'total_monthly_amount': total_monthly_amount})
+
 
 def add_planned_expense(request):
     if request.method == 'POST':
@@ -389,11 +419,11 @@ def add_credit(request):
         return render(request, 'homebuhweb/credit/add_credit.html', {
             'form': form,
             'credits': credits,
-            'credit': credit, # Передаем созданный кредит
+            'credit': credit,  # Передаем созданный кредит
             'principal_amount': principal_amount,
             'monthly_interest': monthly_interest,
             'monthly_payment': monthly_payment,
-            'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
+            'total_monthly_payments': total_monthly_payments,  # Передаем обновленную сумму всех платежей
         })
 
     credits = Credit.objects.filter(user=request.user)
@@ -404,9 +434,10 @@ def add_credit(request):
     return render(request, 'homebuhweb/credit/add_credit.html', {
         'form': form,
         'credits': credits,
-        'credit': None, # Передаем None, если кредит не создан
+        'credit': None,  # Передаем None, если кредит не создан
         'total_monthly_payments': total_monthly_payments,
     })
+
 
 def edit_credit(request, pk):
     credit = get_object_or_404(Credit, pk=pk, user=request.user)
@@ -433,7 +464,7 @@ def edit_credit(request, pk):
                 'principal_amount': principal_amount,
                 'monthly_interest': monthly_interest,
                 'monthly_payment': monthly_payment,
-                'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
+                'total_monthly_payments': total_monthly_payments,  # Передаем обновленную сумму всех платежей
             })
         else:
             form = CreditForm(instance=credit)
@@ -447,7 +478,7 @@ def edit_credit(request, pk):
             'form': form,
             'credits': credits,
             'credit': credit,
-            'total_monthly_payments': total_monthly_payments, # Передаем обновленную сумму всех платежей
+            'total_monthly_payments': total_monthly_payments,  # Передаем обновленную сумму всех платежей
         })
 
 
@@ -494,7 +525,7 @@ def show_grafics(request):
         )
         ax_expenses.set_ylabel('')
         # Вручную вставляем символы новой строки и уменьшаем размер шрифта заголовка
-        title_expenses = 'Процентное отношение расходов\nпо категориям по отношению\nк общему расходу'
+        title_expenses = 'Процентное отношение расходов\nпо категориям по отношению\nк общему расходу за три месяца'
         ax_expenses.set_title(title_expenses, fontsize=10)
         # Уменьшаем размер шрифта подписей
         plt.setp(autotexts, size=8, weight="bold")
@@ -530,7 +561,7 @@ def show_grafics(request):
         )
         ax_incomes.set_ylabel('')
         # Вручную вставляем символы новой строки и уменьшаем размер шрифта заголовка
-        title_incomes = 'Процентное отношение доходов\nпо категориям по отношению\nк общему доходу'
+        title_incomes = 'Процентное отношение доходов\nпо категориям по отношению\nк общему доходу за шесть месяцев'
         ax_incomes.set_title(title_incomes, fontsize=10)
         # Уменьшаем размер шрифта подписей
         plt.setp(autotexts, size=8, weight="bold")
@@ -548,6 +579,3 @@ def show_grafics(request):
         context['message_incomes'] = 'У Вас пока нет доходов'
 
     return render(request, 'homebuhweb/diagrams/show_grafics.html', context)
-
-
-

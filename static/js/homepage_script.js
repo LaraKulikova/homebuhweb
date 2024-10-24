@@ -48,6 +48,17 @@ function handleLogin() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    const dateElement = document.getElementById('currency-date');
+    const today = new Date();
+    const formattedDate = today.toLocaleDateString('ru-RU', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+    dateElement.textContent = formattedDate;
+
+    fetchCurrencyRates();
+
     const categorySelect = document.getElementById('id_category');
     const subcategorySelect = document.getElementById('id_subcategory');
     const subsubcategorySelect = document.getElementById('id_subsubcategory');
@@ -143,3 +154,25 @@ document.addEventListener('DOMContentLoaded', function () {
             });
     }
 });
+
+function fetchCurrencyRates() {
+    fetch('/get_currency_rates/')
+        .then(response => response.json())
+        .then(data => {
+            const tbody = document.querySelector('#currency-rates tbody');
+            tbody.innerHTML = '';
+            for (const [currency, rate] of Object.entries(data)) {
+                const row = document.createElement('tr');
+                const currencyCell = document.createElement('td');
+                const rateCell = document.createElement('td');
+                currencyCell.textContent = currency;
+                rateCell.textContent = rate;
+                row.appendChild(currencyCell);
+                row.appendChild(rateCell);
+                tbody.appendChild(row);
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка загрузки курсов валют:', error);
+        });
+}

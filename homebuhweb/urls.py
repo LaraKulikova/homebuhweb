@@ -4,12 +4,14 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
 
+from .views import user_cabinet, get_currency_rates_view
+
 urlpatterns = [
     path('', views.homepage, name='homepage'),
     path('register/', views.register, name='register'),
     path('login/', views.login_view, name='login'),
-    path('user_cabinet/', views.user_cabinet, name='user_cabinet'),
-    path('api/currency-rates/', views.get_currency_rates, name='currency_rates'),
+    path('user_cabinet/', user_cabinet, name='user_cabinet'),
+    path('get_currency_rates/', get_currency_rates_view, name='get_currency_rates'),
     path('user_prof/', views.user_prof, name='user_prof'),
     path('delete_avatar/', views.delete_avatar, name='delete_avatar'),
     path('logout/', auth_views.LogoutView.as_view(next_page='homepage'), name='logout'),

@@ -47,7 +47,9 @@
             <div>
                 <h2>Информация</h2>
                 <h6>Баланс счета {{ current_date|date:"d.m.Y" }}: {{ balance_value|floatformat:2 }}</h6>
-                <h6>Сумма планируемых расходов в месяц: {{ total_monthly_amount }}</h6>
+                <h6>Сумма планируемых расходов в месяц: {{ total_monthly_amount|floatformat:2 }} BYN
+                    ({{ total_monthly_amount_usd|floatformat:2 }} USD, {{ total_monthly_amount_eur|floatformat:2 }}
+                    EUR, {{ total_monthly_amount_rub|floatformat:2 }} RUB)</h6>
                 <h6>Примерная сумма платежей по кредитам в месяц: {{ total_monthly_payments|floatformat:2 }} BYN
                     ({{ total_monthly_payments_usd|floatformat:2 }} USD, {{ total_monthly_payments_eur|floatformat:2 }}
                     EUR, {{ total_monthly_payments_rub|floatformat:2 }} RUB)</h6>

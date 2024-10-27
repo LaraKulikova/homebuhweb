@@ -20,12 +20,13 @@ from django.shortcuts import get_object_or_404
 from django.shortcuts import redirect
 from django.shortcuts import render
 from django.templatetags.static import static
+from django.views.decorators.csrf import csrf_protect
 
 from .forms import CreditForm
 from .forms import ExpenseForm, CarExpenseForm
 from .forms import PlannedExpenseForm
 from .forms import UserForm, ProfileForm
-from .models import Category, SubCategory, SubSubCategory
+from .models import Category, SubCategory, SubSubCategory, CarExpense
 from .models import Credit
 from .models import Expense
 from .models import Income, Profile
@@ -305,11 +306,9 @@ def delete_expense(request, expense_id):
     return redirect('add_expense')
 
 
-@login_required
 def get_subcategories(request, category_id):
     subcategories = SubCategory.objects.filter(category_id=category_id)
     return JsonResponse(list(subcategories.values('id', 'name')), safe=False)
-
 
 def get_subsubcategories(request, subcategory_id):
     subsubcategories = SubSubCategory.objects.filter(subcategory_id=subcategory_id)
@@ -333,21 +332,28 @@ def expense_view(request, expense_id=None):
     return render(request, 'homebuhweb/expenses/edit_expense.html', {'form': form, 'expense': expense})
 
 
+@login_required
+@csrf_protect
 def add_car_expense(request, expense_id):
-    expense = Expense.objects.get(id=expense_id)
+    expense = get_object_or_404(Expense, id=expense_id, user=request.user)
+    car_expense = CarExpense.objects.filter(subsubcategory=expense).first()
 
     if request.method == 'POST':
-        form = CarExpenseForm(request.POST)
-
+        form = CarExpenseForm(request.POST, instance=car_expense)
         if form.is_valid():
             car_expense = form.save(commit=False)
             car_expense.amount = expense.amount
             car_expense.date = expense.date
             car_expense.subsubcategory = expense
+            car_expense.user = request.user
             car_expense.save()
             return redirect('user_cabinet')
     else:
-        form = CarExpenseForm()
+        initial_data = {
+            'amount': expense.amount,
+            'date': expense.date,
+        }
+        form = CarExpenseForm(instance=car_expense, initial=initial_data)
 
     return render(request, 'homebuhweb/expenses/add_car_expense.html', {'form': form, 'expense': expense})
 

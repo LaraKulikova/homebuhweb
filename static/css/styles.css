@@ -1,0 +1,26 @@
+.form-container {
+    display: flex;
+    justify-content: center;
+}
+
+.form-vertical {
+    width: 100%;
+    max-width: 600px;
+}
+
+.form-vertical .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+    text-align: left;
+}
+
+.form-vertical .form-group label,
+.form-vertical .form-group input {
+    margin-left: 0; /* Убираем отступы для выравнивания по левому краю */
+}
+
+.form-vertical .form-group input {
+    padding: 10px;
+    font-size: 16px;
+}

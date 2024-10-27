@@ -58,7 +58,29 @@ class ExpenseForm(forms.ModelForm):
 class CarExpenseForm(forms.ModelForm):
     class Meta:
         model = CarExpense
-        fields = ['car_brand', 'mileage', 'description']
+        fields = ['car_brand', 'mileage', 'amount', 'description', 'date']
+        labels = {
+            'car_brand': 'Марка автомобиля',
+            'mileage': 'Пробег',
+            'amount': 'Сумма',
+            'description': 'Описание товара',
+            'date': 'Дата',
+        }
+        widgets = {
+            'car_brand': forms.TextInput(attrs={'class': 'form-control', 'style': 'background-color: #ffffff;'}),
+            'mileage': forms.NumberInput(attrs={'class': 'form-control', 'style': 'background-color: #ffffff;'}),
+            'amount': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'style': 'background-color: #A78B71; color: #ffffff;'
+            }),
+            'description': forms.TextInput(attrs={'class': 'form-control', 'style': 'background-color: #ffffff;'}),
+            'date': forms.TextInput(attrs={
+                'class': 'form-control',
+                'readonly': 'readonly',
+                'style': 'background-color: #A78B71; color: #ffffff;'
+            }),
+        }
 
 
 class PlannedExpenseForm(forms.ModelForm):

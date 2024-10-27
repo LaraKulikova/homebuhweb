@@ -98,6 +98,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 row.innerHTML = `<td>${currency}</td><td>${rate}</td>`;
                 tableBody.appendChild(row);
             }
+
+// Сохранение курсов валют для дальнейшего использования
+            document.getElementById('usd-rate').textContent = data.USD;
+            document.getElementById('eur-rate').textContent = data.EUR;
+            document.getElementById('rub-rate').textContent = data.RUB;
         })
         .catch(error => console.error('Error fetching currency rates:', error));
 
@@ -121,10 +126,10 @@ document.addEventListener('DOMContentLoaded', function () {
         const monthlyPayment = (creditAmount / creditTerm) + monthlyInterest;
 
 // Обновление суммы всех платежей в месяц
-        let totalMonthlyPayments = parseFloat(document.querySelector('h6').textContent.match(/[\d.]+/)[0]);
+        let totalMonthlyPayments = parseFloat(document.querySelector('.total-monthly-payments').textContent.match(/[\d.]+/)[0]);
         totalMonthlyPayments += monthlyPayment;
 
-        document.querySelector('h6').textContent = 'Сумма всех платежей в месяц (приблизительно): ' + totalMonthlyPayments.toFixed(2);
+        document.querySelector('.total-monthly-payments').textContent = 'Примерная сумма платежей по кредитам в месяц: ' + totalMonthlyPayments.toFixed(2) + ' BYN';
 
 // Асинхронный запрос для обновления данных на сервере
         fetch('/update_total_monthly_payments/', {
@@ -153,6 +158,67 @@ document.addEventListener('DOMContentLoaded', function () {
                 alert('Произошла ошибка при обновлении суммы всех платежей. Пожалуйста, попробуйте позже.');
             });
     }
+
+// Логика для планируемых расходов
+    const plannedExpensesForm = document.getElementById('planned-expenses-form');
+    plannedExpensesForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        calculateAndSavePlannedExpenses();
+    });
+
+    function calculateAndSavePlannedExpenses() {
+        const plannedAmount = parseFloat(document.getElementById('id_planned_amount').value);
+        const usdRate = parseFloat(document.getElementById('usd-rate').textContent);
+        const eurRate = parseFloat(document.getElementById('eur-rate').textContent);
+        const rubRate = parseFloat(document.getElementById('rub-rate').textContent);
+
+        const plannedAmountUSD = plannedAmount / usdRate;
+        const plannedAmountEUR = plannedAmount / eurRate;
+        const plannedAmountRUB = plannedAmount / rubRate;
+
+        if (isNaN(plannedAmount)) {
+            alert('Пожалуйста, введите корректное значение для планируемых расходов.');
+            return;
+        }
+
+// Обновление суммы планируемых расходов в месяц
+        let totalPlannedExpenses = parseFloat(document.querySelector('.planned-expenses').textContent.match(/[\d.]+/)[0]);
+        totalPlannedExpenses += plannedAmount;
+
+        document.querySelector('.planned-expenses').textContent = 'Сумма планируемых расходов в месяц: ' + totalPlannedExpenses.toFixed(2) + ' BYN (' + plannedAmountUSD.toFixed(2) + ' USD, ' + plannedAmountEUR.toFixed(2) + ' EUR, ' + plannedAmountRUB.toFixed(2) + ' RUB)';
+
+// Асинхронный запрос для обновления данных на сервере
+        fetch('/update_total_planned_expenses/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({
+                total_planned_expenses: totalPlannedExpenses.toFixed(2),
+                total_planned_expenses_usd: plannedAmountUSD.toFixed(2),
+                total_planned_expenses_eur: plannedAmountEUR.toFixed(2),
+                total_planned_expenses_rub: plannedAmountRUB.toFixed(2)
+            })
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Ошибка сети');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.success) {
+                    plannedExpensesForm.submit();
+                } else {
+                    alert('Ошибка при обновлении суммы планируемых расходов.');
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Произошла ошибка при обновлении суммы планируемых расходов. Пожалуйста, попробуйте позже.');
+            });
+    }
 });
 
 function fetchCurrencyRates() {
@@ -171,8 +237,11 @@ function fetchCurrencyRates() {
                 row.appendChild(rateCell);
                 tbody.appendChild(row);
             }
+
+// Сохранение курсов валют для дальнейшего использования
+            document.getElementById('usd-rate').textContent = data.USD;
+            document.getElementById('eur-rate').textContent = data.EUR;
+            document.getElementById('rub-rate').textContent = data.RUB;
         })
-        .catch(error => {
-            console.error('Ошибка загрузки курсов валют:', error);
-        });
+        .catch(error => console.error('Error fetching currency rates:', error));
 }

@@ -402,11 +402,6 @@ def delete_planned_expense(request, pk):
     if request.method == 'POST':
         planned_expense.delete()
         return redirect('plan_expenses')
-    return render(request, 'homebuhweb/expenses/delete_planned_expense.html', {'planned_expense': planned_expense})def delete_planned_expense(request, pk):
-    planned_expense = get_object_or_404(PlannedExpense, pk=pk, user=request.user)
-    if request.method == 'POST':
-        planned_expense.delete()
-        return redirect('plan_expenses')
     return render(request, 'homebuhweb/expenses/delete_planned_expense.html', {'planned_expense': planned_expense})
 
 

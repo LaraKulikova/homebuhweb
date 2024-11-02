@@ -24,3 +24,10 @@
     padding: 10px;
     font-size: 16px;
 }
+th a {
+color: black;
+text-decoration: none;
+}
+th a:hover {
+color: #4B2E2E; /* Темно-коричневый цвет */
+}

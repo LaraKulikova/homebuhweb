@@ -32,4 +32,5 @@ urlpatterns = [
     path('credit/edit/<int:pk>/', views.edit_credit, name='edit_credit'),
     path('credit/delete/', views.delete_credit, name='delete_credit'),
     path('diagrams/', views.show_grafics, name='show_grafics'),
+path('car_expense_report/', views.car_expense_report, name='car_expense_report'),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

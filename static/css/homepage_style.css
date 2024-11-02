@@ -200,7 +200,7 @@ html, body {
 .table-striped {
     background-color: var(--background-color);
     color: var(--primary-color);
-   }
+}
 
 
 .table-striped td {
@@ -220,4 +220,3 @@ html, body {
     color: #fff;
     text-align: center; /* Добавлено для выравнивания по центру */
 }
-

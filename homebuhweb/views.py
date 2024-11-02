@@ -1,37 +1,27 @@
 import base64
 import datetime
 import io
-import urllib
+import textwrap
 import urllib.parse
-from datetime import date, timedelta
-from datetime import datetime
+from datetime import date, timedelta, datetime
 from decimal import Decimal, ROUND_HALF_UP
-from django.contrib import messages
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import requests
+from django.contrib import messages
 from django.contrib.auth import login
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.forms import AuthenticationForm, UserCreationForm
 from django.contrib.auth.models import Group
 from django.db.models import Sum
 from django.http import JsonResponse
-from django.shortcuts import get_object_or_404
-from django.shortcuts import redirect
-from django.shortcuts import render
+from django.shortcuts import get_object_or_404, redirect, render
 from django.templatetags.static import static
 from django.views.decorators.csrf import csrf_protect
 
-from .forms import CreditForm
-from .forms import ExpenseForm, CarExpenseForm
-from .forms import PlannedExpenseForm
-from .forms import UserForm, ProfileForm
-from .models import Category, SubCategory, SubSubCategory, CarExpense
-from .models import Credit
-from .models import Expense
-from .models import Income, Profile
-from .models import PlannedExpense
-import textwrap
+from .forms import CreditForm, ExpenseForm, CarExpenseForm, PlannedExpenseForm, UserForm, ProfileForm
+from .models import Category, SubCategory, SubSubCategory, CarExpense, Credit, Expense, Income, Profile, PlannedExpense
 
 
 def homepage(request):
@@ -93,7 +83,7 @@ def user_cabinet(request):
     user = request.user
     profile = get_object_or_404(Profile, user=user)
 
-    # Инициализация форм
+    # Initialize forms
     user_form = UserForm(instance=user)
     profile_form = ProfileForm(instance=profile)
 
@@ -105,7 +95,7 @@ def user_cabinet(request):
             user_form.save()
             profile_form.save()
 
-    # Инициализация курсов валют по умолчанию
+    # Default currency rates
     usd_rate = Decimal('1')
     eur_rate = Decimal('1')
     rub_rate = Decimal('1')
@@ -113,52 +103,88 @@ def user_cabinet(request):
     if start_date and end_date:
         start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
         end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
-        incomes = Income.objects.filter(user=request.user, date__range=[start_date, end_date])
+        incomes = Income.objects.filter(
+            user=request.user, date__range=[start_date, end_date]
+        )
         total_income = sum(income.amount for income in incomes)
 
-        # Получение актуальных курсов валют
-        currency_rates = get_currency_rates()
-        if 'error' not in currency_rates:
-            usd_rate = currency_rates.get('USD', Decimal('1'))
-            eur_rate = currency_rates.get('EUR', Decimal('1'))
-            rub_rate = currency_rates.get('RUB', Decimal('1'))
+    # Get current currency rates
+    currency_rates = get_currency_rates()
+    if 'error' not in currency_rates:
+        usd_rate = currency_rates.get('USD', Decimal('1'))
+        eur_rate = currency_rates.get('EUR', Decimal('1'))
+        rub_rate = currency_rates.get('RUB', Decimal('1'))
 
-        # Перевод дохода в разные валюты
-        total_income_usd = (total_income / usd_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        total_income_eur = (total_income / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-        total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    # Convert income to different currencies
+    total_income_usd = (total_income / usd_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_income_eur = (total_income / eur_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_income_rub = (total_income / (rub_rate / Decimal('100'))).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
 
     expenses = PlannedExpense.objects.filter(user=request.user)
     total_monthly_amount = Decimal('0.00')
     for expense in expenses:
         total_monthly_amount += expense.calculate_monthly_amount()
-    total_monthly_amount = total_monthly_amount.quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    total_monthly_amount = total_monthly_amount.quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
 
-    # Рассчет суммы платежей по кредитам в различных валютах
-    total_monthly_payments_usd = (total_monthly_payments / usd_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    total_monthly_payments_eur = (total_monthly_payments / eur_rate).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
-    total_monthly_payments_rub = (total_monthly_payments / (rub_rate / Decimal('100'))).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+    # Convert planned expenses to different currencies
+    total_monthly_amount_usd = (total_monthly_amount / usd_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_monthly_amount_eur = (total_monthly_amount / eur_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_monthly_amount_rub = (
+        total_monthly_amount / (rub_rate / Decimal('100'))
+    ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
-    return render(request, 'homebuhweb/login/usercabinet.html', {
-        'start_date': start_date,
-        'end_date': end_date,
-        'total_income': total_income,
-        'total_income_usd': total_income_usd,
-        'total_income_eur': total_income_eur,
-        'total_income_rub': total_income_rub,
-        'total_expenses': total_expenses,
-        'total_monthly_amount': total_monthly_amount,
-        'total_monthly_payments': total_monthly_payments,
-        'total_monthly_payments_usd': total_monthly_payments_usd,
-        'total_monthly_payments_eur': total_monthly_payments_eur,
-        'total_monthly_payments_rub': total_monthly_payments_rub,
-        'balance': balance,
-        'balance_value': balance,
-        'user_form': user_form,
-        'profile_form': profile_form,
-        'avatar_url': profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png'),
-        'username': user.get_full_name() or user.username,
-    })
+    # Convert credit payments to different currencies
+    total_monthly_payments_usd = (total_monthly_payments / usd_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_monthly_payments_eur = (total_monthly_payments / eur_rate).quantize(
+        Decimal('0.01'), rounding=ROUND_HALF_UP
+    )
+    total_monthly_payments_rub = (
+        total_monthly_payments / (rub_rate / Decimal('100'))
+    ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
+
+    return render(
+        request,
+        'homebuhweb/login/usercabinet.html',
+        {
+            'start_date': start_date,
+            'end_date': end_date,
+            'total_income': total_income,
+            'total_income_usd': total_income_usd,
+            'total_income_eur': total_income_eur,
+            'total_income_rub': total_income_rub,
+            'total_expenses': total_expenses,
+            'total_monthly_amount': total_monthly_amount,
+            'total_monthly_amount_usd': total_monthly_amount_usd,
+            'total_monthly_amount_eur': total_monthly_amount_eur,
+            'total_monthly_amount_rub': total_monthly_amount_rub,
+            'total_monthly_payments': total_monthly_payments,
+            'total_monthly_payments_usd': total_monthly_payments_usd,
+            'total_monthly_payments_eur': total_monthly_payments_eur,
+            'total_monthly_payments_rub': total_monthly_payments_rub,
+            'balance': balance,
+            'balance_value': balance,
+            'user_form': user_form,
+            'profile_form': profile_form,
+            'avatar_url': (
+                profile.avatar.url if profile.avatar else static('images/apple-touch-icon.png')
+            ),
+            'username': user.get_full_name() or user.username,
+        },
+    )
 
 
 def get_currency_rates():
@@ -585,3 +611,17 @@ def show_grafics(request):
         context['message_incomes'] = 'У Вас пока нет доходов'
 
     return render(request, 'homebuhweb/diagrams/show_grafics.html', context)
+
+
+
+def car_expense_report(request):
+    sort_by = request.GET.get('sort', 'date')
+    user_categories = Category.objects.filter(expense__user=request.user).distinct()
+    user_subcategories = SubCategory.objects.filter(category__in=user_categories).distinct()
+    user_subsubcategories = SubSubCategory.objects.filter(subcategory__in=user_subcategories).distinct()
+    expenses = CarExpense.objects.filter(
+        subsubcategory__subcategory__category__in=user_categories
+    ).order_by(sort_by)
+    return render(
+        request, 'homebuhweb/reports/car_expense_report.html', {'expenses': expenses}
+    )

@@ -1,13 +1,26 @@
 {% extends 'homebuhweb/base.html' %}
 
 {% block content %}
-    <div class="container">
-        <h2>Редактировать расход</h2>
-        <form method="post">
+    <div class="container mt-5">
+        <h2 class="mb-4">Редактировать расход</h2>
+        <form method="post" class="mb-5">
             {% csrf_token %}
-            {{ form.as_p }}
-            <button type="submit" class="btn btn-custom">Сохранить</button>
-            <a href="{% url 'add_expense' %}" class="btn btn-custom">Отмена</a>
+            <!-- Скрытое поле для id -->
+            <input type="hidden" name="id" value="{{ expense.id }}">
+            <!-- Поле для суммы -->
+            <div class="mb-3">
+                <label for="id_amount" class="form-label">Сумма:</label>
+                <input type="number" name="amount" class="form-control" id="id_amount"
+                       value="{{ expense.amount }}" min="0" step="0.01" required>
+            </div>
+            <!-- Поле для выбора даты -->
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Дата:</label>
+                <input type="date" name="date" class="form-control" id="id_date"
+                       value="{{ expense.date|date:'Y-m-d' }}" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Сохранить</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-secondary">Возврат в личный кабинет</a>
         </form>
     </div>
 {% endblock %}

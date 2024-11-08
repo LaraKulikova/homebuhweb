@@ -314,23 +314,29 @@ def add_expense(request, expense=None):
     }
 
     return render(request, 'homebuhweb/expenses/add_expenses.html', context)
+
+
+
 @login_required
 def edit_expense(request, expense_id):
     expense = get_object_or_404(Expense, id=expense_id, user=request.user)
-    form = ExpenseForm(instance=expense)
 
     if request.method == 'POST':
-        form = ExpenseForm(request.POST, instance=expense)
-        if form.is_valid():
-            form.save()
-            return redirect('add_expense')  # Перенаправление на страницу добавления расходов
+        amount = request.POST.get('amount')
+        date = request.POST.get('date')
+
+        if amount and date:
+            expense.amount = amount
+            expense.date = date
+            expense.save()
+            return redirect('add_expense')  # Перенаправление на страницу личного кабинета
 
     context = {
-        'form': form,
         'expense': expense,
     }
 
     return render(request, 'homebuhweb/expenses/edit_expense.html', context)
+
 
 @login_required
 def delete_expense(request, expense_id):
@@ -381,7 +387,7 @@ def add_car_expense(request, expense_id):
             car_expense.subsubcategory = expense
             car_expense.user = request.user
             car_expense.save()
-            return redirect('user_cabinet')
+            return redirect('add_expense')
     else:
         initial_data = {
             'amount': expense.amount,

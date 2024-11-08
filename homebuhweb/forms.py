@@ -28,32 +28,25 @@ class UserForm(forms.ModelForm):
         }
 
 
-class ExpenseForm(forms.ModelForm):
-    subsubcategory_id = forms.CharField(
-        label='ID Подподкатегории',
-        required=False,
-        widget=forms.TextInput(attrs={'readonly': 'readonly'})
-    )
 
+
+
+from django import forms
+from .models import Expense
+
+class ExpenseForm(forms.ModelForm):
     class Meta:
         model = Expense
-        fields = ['category', 'subcategory', 'subsubcategory', 'subsubcategory_id', 'amount', 'date']
-
-    def __init__(self, *args, **kwargs):
-        super(ExpenseForm, self).__init__(*args, **kwargs)
-
-        if self.instance and self.instance.pk:
-            if self.instance.subsubcategory:
-                self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id
-
-        self.fields['amount'].widget.attrs.update({'min': '0', 'step': '0.01'})
+        fields = ['category', 'subcategory', 'subsubcategory', 'amount', 'date']
 
     def clean_amount(self):
         amount = self.cleaned_data.get('amount')
-
         if amount < 0:
             raise forms.ValidationError('Сумма не может быть отрицательной')
         return amount
+
+
+
 
 
 class CarExpenseForm(forms.ModelForm):

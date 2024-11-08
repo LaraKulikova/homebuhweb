@@ -1,0 +1,40 @@
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <h2>Планируемые расходы</h2>
+    <div class="text-end mt-3">
+        <strong>Общая сумма в месяц: {{ total_monthly_amount }}</strong>
+    </div>
+    <a href="{% url 'add_planned_expense' %}" class="btn btn-custom my-2">Добавить плановый расход</a>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Наименование планируемой покупки</th>
+            <th>Дата начала накопления</th>
+            <th>Стоимость покупки</th>
+            <th>Количество месяцев за которые нужно накопить</th>
+            <th>Сумма в месяц, которою нужно отложить</th>
+            <th>Операции</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for expense in expenses %}
+            <tr>
+                <td>{{ expense.item_name }}</td>
+                <td>{{ expense.start_date|date:"d.m.Y" }}</td>
+                <td>{{ expense.item_cost }}</td>
+                <td>{{ expense.months_to_save }}</td>
+                <td>{{ expense.monthly_amount }}</td>
+                <td>
+                    <a href="{% url 'edit_planned_expense' expense.pk %}" class="btn btn-warning">Изменить</a>
+                    <form action="{% url 'delete_planned_expense' expense.pk %}" method="post" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                    </form>
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+    <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
+{% endblock %}

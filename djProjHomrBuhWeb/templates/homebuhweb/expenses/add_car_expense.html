@@ -1,0 +1,23 @@
+{% extends 'homebuhweb/base.html' %}
+{% load static %}
+
+{% block extra_head %}
+    <link rel="stylesheet" href="{% static 'css/homepage_style.css' %}">
+{% endblock %}
+
+{% block content %}
+    <div class="container form-container">
+        <div class="form-vertical">
+            <h2>Ввести пробег и наименование расхода</h2>
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="btn btn-custom" style="margin-left: 0;">Сохранить</button>
+                <a href="{% url 'user_cabinet' %}" class="btn btn-secondary-custom" style="margin-left: 0;">Возврат в
+                    личный кабинет</a>
+                <a href="{% url 'add_expense' %}" class="btn btn-secondary-custom" style="margin-left: 0;">Вернуться для
+                    добавления расходов</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}

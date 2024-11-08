@@ -1,0 +1,45 @@
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>{% if expense %}Редактировать расход{% else %}Добавить расход{% endif %}</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">{% if expense %}Сохранить{% else %}Добавить расход{% endif %}</button>
+        </form>
+    </div>
+    <!-- Таблица расходов -->
+    <h2>Список расходов на {{ current_date|date:"d.m.Y" }}</h2>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Категория расхода</th>
+            <th>Подкатегория расхода</th>
+            <th>Подподкатегория расхода</th>
+            <th>Сумма расхода</th>
+            <th>Дата расхода</th>
+            <th>Операции над расходами</th>
+        </tr>
+        </thead>
+        <tbody id="tableBody">
+        {% for expense in expenses_today %}
+            <tr>
+                <td>{{ expense.category.name }}</td>
+                <td>{{ expense.subcategory.name }}</td>
+                <td>{{ expense.subsubcategory.name }}</td>
+                <td>{{ expense.amount }}</td>
+                <td>{{ expense.date|date:'d.m.Y' }}</td>
+                <td>
+                    <a href="{% url 'edit_expense' expense.id %}" class="btn btn-warning">Изменить</a>
+                    <a href="{% url 'delete_expense' expense.id %}" class="btn btn-danger">Удалить</a>
+                    {% if expense.subsubcategory.id == 71 or expense.subsubcategory.id == 72 %}
+                        <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Добавить данные
+                            для автомобиля</a>
+                    {% endif %}
+                </td>
+            </tr>
+        {% endfor %}
+        </tbody>
+    </table>
+{% endblock %}

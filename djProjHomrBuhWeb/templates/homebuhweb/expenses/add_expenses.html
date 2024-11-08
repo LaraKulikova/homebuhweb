@@ -1,0 +1,118 @@
+{% extends 'homebuhweb/base.html' %}
+
+{% block content %}
+    <div class="container">
+        <h2>{% if expense %}Редактировать расход{% else %}Добавить расход{% endif %}</h2>
+        <form method="post">
+            {% csrf_token %}
+            <!-- Поле для выбора категории расхода -->
+            <div class="mb-3">
+                <label for="id_category" class="form-label">Выбрать категорию расхода:</label>
+                <select name="category" class="form-control" id="id_category" required>
+                    <option value="">Выбрать категорию</option>
+                    {% for category in categories %}
+                        <option value="{{ category.id }}"
+                                {% if expense and expense.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <!-- Поле для выбора подкатегории расхода -->
+            <div class="mb-3">
+                <label for="id_subcategory" class="form-label">Выбрать подкатегорию расхода:</label>
+                <select name="subcategory" class="form-control" id="id_subcategory" required>
+                    <option value="">Выбрать подкатегорию</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            <!-- Поле для выбора подподкатегории расхода -->
+            <div class="mb-3">
+                <label for="id_subsubcategory" class="form-label">Выбрать подподкатегорию расхода:</label>
+                <select name="subsubcategory" class="form-control" id="id_subsubcategory" required>
+                    <option value="">Выбрать подподкатегорию</option>
+                    <!-- Options will be populated by JavaScript -->
+                </select>
+            </div>
+            <!-- Поле для суммы -->
+            <div class="mb-3">
+                <label for="id_amount" class="form-label">Сумма:</label>
+                <input type="number" name="amount" class="form-control" id="id_amount"
+                       value="{% if expense %}{{ expense.amount }}{% endif %}" min="0" step="0.01" required>
+            </div>
+            <!-- Поле для выбора даты -->
+            <div class="mb-3">
+                <label for="id_date" class="form-label">Дата:</label>
+                <input type="date" name="date" class="form-control" id="id_date"
+                       value="{% if expense %}{{ expense.date|date:'Y-m-d' }}{% endif %}" required>
+            </div>
+            <button type="submit" class="btn btn-custom">{% if expense %}Сохранить{% else %}Добавить{% endif %}</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom">Возврат в личный кабинет</a>
+        </form>
+        <!-- Общая сумма расходов -->
+        <h2>Общая сумма расходов на {{ current_date|date:"d.m.Y" }}: {{ total_expenses }}</h2>
+        <!-- Таблица расходов -->
+        <h2>Список расходов на {{ current_date|date:"d.m.Y" }}</h2>
+        <table class="table table-striped">
+            <thead>
+            <tr>
+                <th>Категория расхода</th>
+                <th>Подкатегория расхода</th>
+                <th>Подподкатегория расхода</th>
+                <th>Сумма расхода</th>
+                <th>Дата расхода</th>
+                <th>Операции над расходами</th>
+            </tr>
+            </thead>
+            <tbody id="tableBody">
+            {% for expense in expenses_today %}
+                <tr>
+                    <td>{{ expense.category.name }}</td>
+                    <td>{{ expense.subcategory.name }}</td>
+                    <td>{{ expense.subsubcategory.name }}</td>
+                    <td>{{ expense.amount }}</td>
+                    <td>{{ expense.date|date:'d.m.Y' }}</td>
+                    <td>
+                        <a href="{% url 'edit_expense' expense.id %}" class="btn btn-warning">Изменить</a>
+                        <a href="{% url 'delete_expense' expense.id %}" class="btn btn-danger">Удалить</a>
+                        {% if expense.subsubcategory.id == 71 or expense.subsubcategory.id == 72 %}
+                            <a href="{% url 'add_car_expense' expense.id %}" class="btn btn-info btn-custom">Ввести
+                                пробег и примечание</a>
+                        {% endif %}
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const categorySelect = document.getElementById('id_category');
+            const subcategorySelect = document.getElementById('id_subcategory');
+            const subsubcategorySelect = document.getElementById('id_subsubcategory');
+
+            categorySelect.addEventListener('change', function () {
+                const categoryId = this.value;
+                fetch(`/get_subcategories/${categoryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subcategorySelect.innerHTML = '<option value="">Выбрать подкатегорию</option>';
+                        data.forEach(subcategory => {
+                            subcategorySelect.innerHTML += `<option value="${subcategory.id}">${subcategory.name}</option>`;
+                        });
+                        subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>'; // Очистить подподкатегории
+                    });
+            });
+
+            subcategorySelect.addEventListener('change', function () {
+                const subcategoryId = this.value;
+                fetch(`/get_subsubcategories/${subcategoryId}/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        subsubcategorySelect.innerHTML = '<option value="">Выбрать подподкатегорию</option>';
+                        data.forEach(subsubcategory => {
+                            subsubcategorySelect.innerHTML += `<option value="${subsubcategory.id}">${subsubcategory.name}</option>`;
+                        });
+                    });
+            });
+        });
+    </script>
+{% endblock %}

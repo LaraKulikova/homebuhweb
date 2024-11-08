@@ -1,0 +1,124 @@
+{% extends 'homebuhweb/base.html' %}
+{% load static %}
+{% block content %}
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">{% if credit %}Изменить кредит/рассрочку{% else %}Добавить
+            кредит/рассрочку{% endif %}</h2>
+        <form method="post" class="mx-auto" style="max-width: 600px;">
+            {% csrf_token %}
+            <div class="mb-3">
+                <label for="id_credit_name" class="form-label">Наименование кредита/рассрочки</label>
+                <input type="text" name="credit_name" id="id_credit_name" class="form-control"
+                       value="{{ credit.credit_name }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_credit_amount" class="form-label">Сумма кредита/рассрочки</label>
+                <input type="number" name="credit_amount" id="id_credit_amount" class="form-control" min="0" step="0.01"
+                       value="{{ credit.credit_amount }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_credit_term" class="form-label">Срок кредита/рассрочки (в месяцах)</label>
+                <input type="number" name="credit_term" id="id_credit_term" class="form-control" min="0"
+                       value="{{ credit.credit_term }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_interest_rate" class="form-label">Процентная ставка</label>
+                <input type="number" name="interest_rate" id="id_interest_rate" class="form-control" min="0" step="0.01"
+                       value="{{ credit.interest_rate }}" required>
+            </div>
+            <div class="mb-3">
+                <label for="id_issue_date" class="form-label">Дата выдачи</label>
+                <input type="date" name="issue_date" id="id_issue_date" class="form-control"
+                       value="{{ credit.issue_date }}" required>
+            </div>
+            <button type="submit" class="btn btn-custom my-2">Рассчитать и сохранить</button>
+            <a href="{% url 'user_cabinet' %}" class="btn btn-custom my-2">Вернуться в личный кабинет</a>
+        </form>
+        <div id="calculation-results" class="mt-4" style="display: none;">
+            <h4>Результаты расчета</h4>
+            <p>Сумма по основному долгу: <span id="principal-amount"></span></p>
+            <p>Сумма процентов в месяц: <span id="monthly-interest"></span></p>
+            <p>Общая сумма платежа в месяц: <span id="monthly_payment"></span></p>
+        </div>
+    </div>
+
+    <div class="container mt-5">
+        <h2 class="text-center mb-4">Сохраненные кредиты/рассрочки</h2>
+        <h6>Сумма всех платежей в месяц (приблизительно): {{ total_monthly_payments|floatformat:2 }}</h6>
+        <table class="table table-striped text-center">
+            <thead>
+            <tr>
+                <th>Наименование</th>
+                <th>Дата выдачи</th>
+                <th>Сумма</th>
+                <th>Процентная ставка</th>
+                <th>Срок (мес.)</th>
+                <th>Сумма по основному долгу</th>
+                <th>Сумма процентов в месяц</th>
+                <th>Общая сумма платежа в месяц</th>
+                <th>Операции</th>
+            </tr>
+            </thead>
+            <tbody>
+            {% for credit in credits %}
+                <tr>
+                    <td>{{ credit.credit_name }}</td>
+                    <td>{{ credit.issue_date|date:"d.m.Y" }}</td>
+                    <td>{{ credit.credit_amount|floatformat:2 }}</td>
+                    <td>{{ credit.interest_rate|floatformat:2 }}%</td>
+                    <td>{{ credit.credit_term }}</td>
+                    <td>{{ credit.principal_amount|floatformat:2 }}</td>
+                    <td>{{ credit.monthly_interest|floatformat:2 }}</td>
+                    <td>{{ credit.monthly_payment|floatformat:2 }}</td>
+                    <td>
+                        <a href="{% url 'edit_credit' credit.id %}" class="btn btn-custom btn-sm">Изменить</a>
+                        <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
+                                data-credit-id="{{ credit.id }}" data-credit-name="{{ credit.credit_name }}">Удалить
+                        </button>
+                    </td>
+                </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="deleteModalLabel">Удалить кредит/рассрочку</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Вы уверены, что хотите удалить кредит/рассрочку "<span id="modal-credit-name"></span>"?</p>
+                </div>
+                <div class="modal-footer">
+                    <form method="post" action="{% url 'delete_credit' %}" id="delete-form">
+                        {% csrf_token %}
+                        <input type="hidden" name="credit_id" id="modal-credit-id">
+                        <button type="submit" class="btn btn-danger">Удалить</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Отмена</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var deleteModal = document.getElementById('deleteModal');
+            deleteModal.addEventListener('show.bs.modal', function (event) {
+                var button = event.relatedTarget;
+                var creditId = button.getAttribute('data-credit-id');
+                var creditName = button.getAttribute('data-credit-name');
+                var modalCreditName = deleteModal.querySelector('#modal-credit-name');
+                var modalCreditId = deleteModal.querySelector('#modal-credit-id');
+                modalCreditName.textContent = creditName;
+                modalCreditId.value = creditId;
+            });
+        });
+    </script>
+
+    <script src="{% static 'js/homepage_script.js' %}"></script>
+{% endblock %}

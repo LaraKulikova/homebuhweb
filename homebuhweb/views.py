@@ -142,7 +142,7 @@ def user_cabinet(request):
         Decimal('0.01'), rounding=ROUND_HALF_UP
     )
     total_monthly_amount_rub = (
-        total_monthly_amount / (rub_rate / Decimal('100'))
+            total_monthly_amount / (rub_rate / Decimal('100'))
     ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     # Convert credit payments to different currencies
@@ -153,7 +153,7 @@ def user_cabinet(request):
         Decimal('0.01'), rounding=ROUND_HALF_UP
     )
     total_monthly_payments_rub = (
-        total_monthly_payments / (rub_rate / Decimal('100'))
+            total_monthly_payments / (rub_rate / Decimal('100'))
     ).quantize(Decimal('0.01'), rounding=ROUND_HALF_UP)
 
     return render(
@@ -258,18 +258,28 @@ def add_income(request, id=None):
             income.date = date
             income.save()
         else:
-            Income.objects.create(user=request.user, income_type=income_type, amount=amount, date=date)
+            Income.objects.create(
+                user=request.user,
+                income_type=income_type,
+                amount=amount,
+                date=date
+            )
 
         return redirect('add_income')
 
-    incomes = Income.objects.filter(user=request.user)
+    sort_by = request.GET.get('sort', 'date')
+    incomes = Income.objects.filter(user=request.user).order_by(sort_by)
     total_income = incomes.aggregate(Sum('amount'))['amount__sum'] or 0
 
-    return render(request, 'homebuhweb/incomes/add_income.html', {
-        'income': income,
-        'incomes': incomes,
-        'total_income': total_income
-    })
+    return render(
+        request,
+        'homebuhweb/incomes/add_income.html',
+        {
+            'income': income,
+            'incomes': incomes,
+            'total_income': total_income
+        }
+    )
 
 
 @login_required
@@ -335,6 +345,7 @@ def delete_expense(request, expense_id):
 def get_subcategories(request, category_id):
     subcategories = SubCategory.objects.filter(category_id=category_id)
     return JsonResponse(list(subcategories.values('id', 'name')), safe=False)
+
 
 def get_subsubcategories(request, subcategory_id):
     subsubcategories = SubSubCategory.objects.filter(subcategory_id=subcategory_id)
@@ -613,15 +624,22 @@ def show_grafics(request):
     return render(request, 'homebuhweb/diagrams/show_grafics.html', context)
 
 
-
+@login_required
 def car_expense_report(request):
     sort_by = request.GET.get('sort', 'date')
     user_categories = Category.objects.filter(expense__user=request.user).distinct()
-    user_subcategories = SubCategory.objects.filter(category__in=user_categories).distinct()
-    user_subsubcategories = SubSubCategory.objects.filter(subcategory__in=user_subcategories).distinct()
+    user_subcategories = SubCategory.objects.filter(
+        category__in=user_categories
+    ).distinct()
+    user_subsubcategories = SubSubCategory.objects.filter(
+        subcategory__in=user_subcategories
+    ).distinct()
     expenses = CarExpense.objects.filter(
-        subsubcategory__subcategory__category__in=user_categories
+        subsubcategory__subcategory__category__in=user_categories,
+        subsubcategory__user=request.user  # Добавляем фильтрацию по пользователю
     ).order_by(sort_by)
     return render(
-        request, 'homebuhweb/reports/car_expense_report.html', {'expenses': expenses}
+        request,
+        'homebuhweb/reports/car_expense_report.html',
+        {'expenses': expenses}
     )

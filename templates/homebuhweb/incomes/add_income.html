@@ -13,7 +13,8 @@
                             {% if income and income.income_type == "заработная плата" %}selected{% endif %}>Заработная
                         плата
                     </option>
-                    <option value="пенсия" {% if income and income.income_type == "пенсия" %}selected{% endif %}>Пенсия
+                    <option value="пенсия" {% if income and income.income_type == "пенсия" %}selected{% endif %}>
+                        Пенсия
                     </option>
                     <option value="стипендия" {% if income and income.income_type == "стипендия" %}selected{% endif %}>
                         Стипендия
@@ -67,9 +68,9 @@
         <table class="table table-striped">
             <thead>
             <tr>
-                <th>Вид дохода</th>
-                <th>Сумма дохода</th>
-                <th>Дата дохода</th>
+                <th><a href="?sort=income_type" style="color: black; text-decoration: none;">Вид дохода</a></th>
+                <th><a href="?sort=amount" style="color: black; text-decoration: none;">Сумма дохода</a></th>
+                <th><a href="?sort=date" style="color: black; text-decoration: none;">Дата дохода</a></th>
                 <th>Операции над доходами</th>
             </tr>
             </thead>

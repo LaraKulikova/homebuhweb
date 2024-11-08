@@ -134,6 +134,7 @@ class Credit(models.Model):
     credit_term = models.IntegerField()
     interest_rate = models.DecimalField(max_digits=5, decimal_places=2)
     issue_date = models.DateField()
+    is_paid_off = models.BooleanField(default=False)  # Новое поле
 
     def __str__(self):
         return self.credit_name

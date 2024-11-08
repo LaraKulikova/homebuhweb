@@ -61,7 +61,7 @@
             </thead>
             <tbody>
             {% for credit in credits %}
-                <tr>
+                <tr {% if credit.is_paid_off %}style="background-color: #AEC670;"{% endif %}>
                     <td>{{ credit.credit_name }}</td>
                     <td>{{ credit.issue_date|date:"d.m.Y" }}</td>
                     <td>{{ credit.credit_amount|floatformat:2 }}</td>
@@ -75,6 +75,12 @@
                         <button class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal"
                                 data-credit-id="{{ credit.id }}" data-credit-name="{{ credit.credit_name }}">Удалить
                         </button>
+                        {% if not credit.is_paid_off %}
+                            <form method="post" action="{% url 'mark_as_paid_off' credit.id %}" style="display:inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">Кредит погашен</button>
+                            </form>
+                        {% endif %}
                     </td>
                 </tr>
             {% endfor %}

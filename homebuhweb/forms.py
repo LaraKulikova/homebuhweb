@@ -43,7 +43,8 @@ class ExpenseForm(forms.ModelForm):
         super(ExpenseForm, self).__init__(*args, **kwargs)
 
         if self.instance and self.instance.pk:
-            self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id
+            if self.instance.subsubcategory:
+                self.fields['subsubcategory_id'].initial = self.instance.subsubcategory.id
 
         self.fields['amount'].widget.attrs.update({'min': '0', 'step': '0.01'})
 

@@ -5,33 +5,49 @@
         <h2>{% if expense %}Редактировать расход{% else %}Добавить расход{% endif %}</h2>
         <form method="post">
             {% csrf_token %}
-            <!-- Поле для выбора категории расхода -->
-            <div class="mb-3">
-                <label for="id_category" class="form-label">Выбрать категорию расхода:</label>
-                <select name="category" class="form-control" id="id_category" required>
-                    <option value="">Выбрать категорию</option>
-                    {% for category in categories %}
-                        <option value="{{ category.id }}"
-                                {% if expense and expense.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
-                    {% endfor %}
-                </select>
-            </div>
-            <!-- Поле для выбора подкатегории расхода -->
-            <div class="mb-3">
-                <label for="id_subcategory" class="form-label">Выбрать подкатегорию расхода:</label>
-                <select name="subcategory" class="form-control" id="id_subcategory" required>
-                    <option value="">Выбрать подкатегорию</option>
-                    <!-- Options will be populated by JavaScript -->
-                </select>
-            </div>
-            <!-- Поле для выбора подподкатегории расхода -->
-            <div class="mb-3">
-                <label for="id_subsubcategory" class="form-label">Выбрать подподкатегорию расхода:</label>
-                <select name="subsubcategory" class="form-control" id="id_subsubcategory" required>
-                    <option value="">Выбрать подподкатегорию</option>
-                    <!-- Options will be populated by JavaScript -->
-                </select>
-            </div>
+            {% if not expense %}
+                <!-- Поле для выбора категории расхода -->
+                <div class="mb-3">
+                    <label for="id_category" class="form-label">Выбрать категорию расхода:</label>
+                    <select name="category" class="form-control" id="id_category" required>
+                        <option value="">Выбрать категорию</option>
+                        {% for category in categories %}
+                            <option value="{{ category.id }}"
+                                    {% if expense and expense.category.id == category.id %}selected{% endif %}>{{ category.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <!-- Поле для выбора подкатегории расхода -->
+                <div class="mb-3">
+                    <label for="id_subcategory" class="form-label">Выбрать подкатегорию расхода:</label>
+                    <select name="subcategory" class="form-control" id="id_subcategory" required>
+                        <option value="">Выбрать подкатегорию</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+                <!-- Поле для выбора подподкатегории расхода -->
+                <div class="mb-3">
+                    <label for="id_subsubcategory" class="form-label">Выбрать подподкатегорию расхода:</label>
+                    <select name="subsubcategory" class="form-control" id="id_subsubcategory" required>
+                        <option value="">Выбрать подподкатегорию</option>
+                        <!-- Options will be populated by JavaScript -->
+                    </select>
+                </div>
+            {% else %}
+                <!-- Отображение категории, подкатегории и подподкатегории как текста -->
+                <div class="mb-3">
+                    <label class="form-label">Категория расхода:</label>
+                    <p>{{ expense.category.name }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Подкатегория расхода:</label>
+                    <p>{{ expense.subcategory.name }}</p>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Подподкатегория расхода:</label>
+                    <p>{{ expense.subsubcategory.name }}</p>
+                </div>
+            {% endif %}
             <!-- Поле для суммы -->
             <div class="mb-3">
                 <label for="id_amount" class="form-label">Сумма:</label>
